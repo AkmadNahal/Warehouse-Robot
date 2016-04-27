@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_-vtsQAuWEeaaTfkH6EJqKQ" name="NewModel">
+  <packagedElement xmi:type="uml:Actor" xmi:id="_W66sAAuXEeaaTfkH6EJqKQ" name="Visitor" isLeaf="true">
+    <eAnnotations xmi:id="_W6_kgAuXEeaaTfkH6EJqKQ" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <details xmi:id="_W6_kgQuXEeaaTfkH6EJqKQ" key="Human"/>
+    </eAnnotations>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Actor" xmi:id="_mMxsgAuXEeaaTfkH6EJqKQ" name="Admin" isLeaf="true">
+    <eAnnotations xmi:id="_mMxsgQuXEeaaTfkH6EJqKQ" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <details xmi:id="_mMxsgguXEeaaTfkH6EJqKQ" key="Human"/>
+    </eAnnotations>
+    <generalization xmi:id="_r2FeYAuXEeaaTfkH6EJqKQ" general="_iy_GMAuXEeaaTfkH6EJqKQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Actor" xmi:id="_c28lkAuXEeaaTfkH6EJqKQ" name="Customer" isLeaf="true">
+    <eAnnotations xmi:id="_c29MoAuXEeaaTfkH6EJqKQ" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <details xmi:id="_c29MoQuXEeaaTfkH6EJqKQ" key="Human"/>
+    </eAnnotations>
+    <generalization xmi:id="_shpj4AuXEeaaTfkH6EJqKQ" general="_iy_GMAuXEeaaTfkH6EJqKQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Actor" xmi:id="_iy_GMAuXEeaaTfkH6EJqKQ" name="User" isAbstract="true">
+    <eAnnotations xmi:id="_iy_GMQuXEeaaTfkH6EJqKQ" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <details xmi:id="_iy_GMguXEeaaTfkH6EJqKQ" key="Human"/>
+    </eAnnotations>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_qceAEAuXEeaaTfkH6EJqKQ" name="Login"/>
+  <packagedElement xmi:type="uml:Association" xmi:id="_tj9VcAuXEeaaTfkH6EJqKQ" memberEnd="_tkCN8AuXEeaaTfkH6EJqKQ _tkC1AAuXEeaaTfkH6EJqKQ">
+    <ownedEnd xmi:id="_tkCN8AuXEeaaTfkH6EJqKQ" type="_W66sAAuXEeaaTfkH6EJqKQ" association="_tj9VcAuXEeaaTfkH6EJqKQ"/>
+    <ownedEnd xmi:id="_tkC1AAuXEeaaTfkH6EJqKQ" type="_qceAEAuXEeaaTfkH6EJqKQ" association="_tj9VcAuXEeaaTfkH6EJqKQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_53_58AuXEeaaTfkH6EJqKQ" name="Add box"/>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_-gqHIAuXEeaaTfkH6EJqKQ" name="Remove box">
+    <ownedUseCase xmi:id="_CcxXYAuYEeaaTfkH6EJqKQ" name="Add box"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_DgEncAuYEeaaTfkH6EJqKQ" name="View boxes">
+    <ownedUseCase xmi:id="_DgEncQuYEeaaTfkH6EJqKQ" name="Add box"/>
+    <include xmi:id="_esz88AxFEeaRYMxDf_WfRw" addition="_ayBD8AuYEeaaTfkH6EJqKQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_GYvdsAuYEeaaTfkH6EJqKQ" name="View camera video">
+    <ownedUseCase xmi:id="_GYvdsQuYEeaaTfkH6EJqKQ" name="Add box"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_M3HPUAuYEeaaTfkH6EJqKQ" memberEnd="_M3H2YAuYEeaaTfkH6EJqKQ _M3JEgAuYEeaaTfkH6EJqKQ">
+    <ownedEnd xmi:id="_M3H2YAuYEeaaTfkH6EJqKQ" type="_iy_GMAuXEeaaTfkH6EJqKQ" association="_M3HPUAuYEeaaTfkH6EJqKQ"/>
+    <ownedEnd xmi:id="_M3JEgAuYEeaaTfkH6EJqKQ" type="_-gqHIAuXEeaaTfkH6EJqKQ" association="_M3HPUAuYEeaaTfkH6EJqKQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_PMvp8AuYEeaaTfkH6EJqKQ" memberEnd="_PMvp8QuYEeaaTfkH6EJqKQ _PMwRAAuYEeaaTfkH6EJqKQ">
+    <ownedEnd xmi:id="_PMvp8QuYEeaaTfkH6EJqKQ" type="_mMxsgAuXEeaaTfkH6EJqKQ" association="_PMvp8AuYEeaaTfkH6EJqKQ"/>
+    <ownedEnd xmi:id="_PMwRAAuYEeaaTfkH6EJqKQ" type="_GYvdsAuYEeaaTfkH6EJqKQ" association="_PMvp8AuYEeaaTfkH6EJqKQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_UWX2MAuYEeaaTfkH6EJqKQ" name="Remote control">
+    <include xmi:id="__-gvwAuYEeaaTfkH6EJqKQ" addition="_80vicAuYEeaaTfkH6EJqKQ"/>
+    <include xmi:id="_I23QgAuZEeaaTfkH6EJqKQ" addition="_B7UasAuZEeaaTfkH6EJqKQ"/>
+    <include xmi:id="_XMMXUAuZEeaaTfkH6EJqKQ" addition="_1pjHEAuYEeaaTfkH6EJqKQ"/>
+    <include xmi:id="_mSAMsAxFEeaRYMxDf_WfRw" addition="_fcuW8AxFEeaRYMxDf_WfRw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_YNIsYAuYEeaaTfkH6EJqKQ" memberEnd="_YNIsYQuYEeaaTfkH6EJqKQ _YNIsYguYEeaaTfkH6EJqKQ">
+    <ownedEnd xmi:id="_YNIsYQuYEeaaTfkH6EJqKQ" type="_mMxsgAuXEeaaTfkH6EJqKQ" association="_YNIsYAuYEeaaTfkH6EJqKQ"/>
+    <ownedEnd xmi:id="_YNIsYguYEeaaTfkH6EJqKQ" type="_UWX2MAuYEeaaTfkH6EJqKQ" association="_YNIsYAuYEeaaTfkH6EJqKQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_ayBD8AuYEeaaTfkH6EJqKQ" name="View box details">
+    <ownedUseCase xmi:id="_ayBD8QuYEeaaTfkH6EJqKQ" name="Add box"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_1pjHEAuYEeaaTfkH6EJqKQ" name="Relative move"/>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_80vicAuYEeaaTfkH6EJqKQ" name="Absolute move"/>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_B7UasAuZEeaaTfkH6EJqKQ" name="Pickup box"/>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_PwroAAuZEeaaTfkH6EJqKQ" name="Check location">
+    <extend xmi:id="_nVpbAAxFEeaRYMxDf_WfRw" extendedCase="_fcuW8AxFEeaRYMxDf_WfRw"/>
+    <extend xmi:id="_nv_NoAxFEeaRYMxDf_WfRw" extendedCase="_B7UasAuZEeaaTfkH6EJqKQ"/>
+    <extend xmi:id="_oP4OoAxFEeaRYMxDf_WfRw" extendedCase="_80vicAuYEeaaTfkH6EJqKQ"/>
+    <extend xmi:id="_opgPkAxFEeaRYMxDf_WfRw" extendedCase="_1pjHEAuYEeaaTfkH6EJqKQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_c8EYEAxFEeaRYMxDf_WfRw" memberEnd="_c8E_IAxFEeaRYMxDf_WfRw _c8FmMAxFEeaRYMxDf_WfRw">
+    <ownedEnd xmi:id="_c8E_IAxFEeaRYMxDf_WfRw" type="_iy_GMAuXEeaaTfkH6EJqKQ" association="_c8EYEAxFEeaRYMxDf_WfRw"/>
+    <ownedEnd xmi:id="_c8FmMAxFEeaRYMxDf_WfRw" type="_DgEncAuYEeaaTfkH6EJqKQ" association="_c8EYEAxFEeaRYMxDf_WfRw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_eSrlsAxFEeaRYMxDf_WfRw" memberEnd="_eSsMwAxFEeaRYMxDf_WfRw _eSsMwQxFEeaRYMxDf_WfRw">
+    <ownedEnd xmi:id="_eSsMwAxFEeaRYMxDf_WfRw" type="_iy_GMAuXEeaaTfkH6EJqKQ" association="_eSrlsAxFEeaRYMxDf_WfRw"/>
+    <ownedEnd xmi:id="_eSsMwQxFEeaRYMxDf_WfRw" type="_53_58AuXEeaaTfkH6EJqKQ" association="_eSrlsAxFEeaRYMxDf_WfRw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_fcuW8AxFEeaRYMxDf_WfRw" name="Put down box"/>
+</uml:Model>
