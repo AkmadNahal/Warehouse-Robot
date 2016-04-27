@@ -65,7 +65,6 @@
   <packagedElement xmi:type="uml:UseCase" xmi:id="_PwroAAuZEeaaTfkH6EJqKQ" name="Check location">
     <extend xmi:id="_nVpbAAxFEeaRYMxDf_WfRw" extendedCase="_fcuW8AxFEeaRYMxDf_WfRw"/>
     <extend xmi:id="_nv_NoAxFEeaRYMxDf_WfRw" extendedCase="_B7UasAuZEeaaTfkH6EJqKQ"/>
-    <extend xmi:id="_oP4OoAxFEeaRYMxDf_WfRw" extendedCase="_80vicAuYEeaaTfkH6EJqKQ"/>
     <extend xmi:id="_opgPkAxFEeaRYMxDf_WfRw" extendedCase="_1pjHEAuYEeaaTfkH6EJqKQ"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Association" xmi:id="_c8EYEAxFEeaRYMxDf_WfRw" memberEnd="_c8E_IAxFEeaRYMxDf_WfRw _c8FmMAxFEeaRYMxDf_WfRw">
