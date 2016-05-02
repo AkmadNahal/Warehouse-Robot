@@ -1,16 +1,17 @@
-
 import { server } from '../app-compiled';
 import { appClient } from './iot_application-compiled';
 import { dbClient } from './influxdb-compiled';
-import { writeAfile } from './createDataDump-compiled';
+import { tryInsertBox } from './not_yet_implemented/decisionmaker-compiled';
+
+var clientConSock;
 
 function socketSetup() {
-
 
 // Socket configuration
 
     const serverSocket = require('socket.io')(server);
-    serverSocket.on('connection', function(clientConSock) {
+    serverSocket.on('connection', function(ConSock) {
+        clientConSock = ConSock;
         console.log("A client connected");
         
             var query = "select * " +
@@ -28,7 +29,14 @@ function socketSetup() {
                 clientConSock.emit('res_data', results);
             //    writeAfile(JSON.stringify(results));
             });
+
+        clientConSock.on('add_box', function(box) {
+            tryInsertBox(box, function(result) {
+                console.log(result);
+                console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+            });
+        });
     });
 }
 
-export { socketSetup };
+export { socketSetup, clientConSock };

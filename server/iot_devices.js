@@ -1,22 +1,56 @@
 import { Client } from '../app-compiled';
 
+
 function iotDeviceSetup(){
 
     const config = {
-        "org" : "b3g117",
+        "org" : "71hbg2",
         "id" : "1",
-        "type" : "E103",
+        "type" : "Arduino_board",
         "auth-method" : "token",
-        "auth-token" : "fD5OmRolF8_qpX27C9"
+        "auth-token" : "fynxhXYZLmAlB35ir7"
     };
 
+    const config_2 = {
+        "org" : "71hbg2",
+        "id" : "2",
+        "type" : "Arduino_board",
+        "auth-method" : "token",
+        "auth-token" : "mPeCLA_t7mQMi2k25O"
+    };
+
+    const config_3 = {
+        "org" : "71hbg2",
+        "id" : "3",
+        "type" : "Arduino_board",
+        "auth-method" : "token",
+        "auth-token" : "-3Icm8HvvUR+Wn+jXD"
+    };
+
+
+
     let deviceClient = new Client.IotfDevice(config);
+    let deviceClient_2 = new Client.IotfDevice(config_2);
+    let deviceClient_3 = new Client.IotfDevice(config_3);
 
     deviceClient.connect();
+    deviceClient_2.connect();
+    deviceClient_3.connect();
 
-    deviceClient.on('connect', function () {
+
+    function publisher() {
+        deviceClient.publish("event","json",'{"data" : { "temperature_celsius" : 15, "light_lux" : 300 }}');
+        deviceClient_2.publish("event","json",'{"data" : { "temperature_celsius" : 25, "light_lux" : 100 }}');
+        deviceClient_3.publish("event","json",'{"data" : { "temperature_celsius" : 5, "light_lux" : 600 }}');
+    }
+
+    deviceClient_3.on('connect', function () {
         console.log('succesfully connected to IBM Watson!');
+        setInterval(publisher, 5000);
     });
+
+
+
 
     deviceClient.on('command', function(commandName, format, payload, topic) {
         console.log('commandName ' + commandName);

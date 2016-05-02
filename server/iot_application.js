@@ -1,4 +1,3 @@
-
 import { Client } from '../app-compiled';
 import { dbClient } from './influxdb-compiled';
 
@@ -6,10 +5,10 @@ let appClient;
 const iotAppSetup = function() {
 
     const appClientConfig = {
-        'org' : 'b3g117',
+        'org' : '71hbg2',
         'id' : '1',
-        'auth-key' : 'a-b3g117-8ilefufd96',
-        'auth-token' : '@jwCfBpz(fhh6Jo5OJ',
+        'auth-key' : 'a-71hbg2-vbimsngp5s',
+        'auth-token' : 'tCJWyt)+2@xJW3Ry1G',
         'type' : 'shared' // make this connection as shared subscription
     };
 
@@ -21,52 +20,18 @@ const iotAppSetup = function() {
         appClient.subscribeToDeviceEvents();    // Subscribe to all events on all devices!!
     });
 
-
     appClient.on('deviceEvent', function(deviceType, deviceId, eventType, format, payload) {
 
-        console.log(deviceType);
-        console.log("Device Event from :: "+deviceType+" : "+deviceId+" of event "+eventType+" with payload : "+payload);
+        console.log("Device Event from :: " + deviceType + " : " + deviceId + " of event " + eventType + " with payload : " + payload);
+        let deviceData = (JSON.parse(payload.toString())).data;
 
-        let deviceData = (JSON.parse(payload.toString())).d;
-
-        // Values
-        let myName = deviceData['myName'];
-
-        if(deviceType === 'N101') {
-
-            // status
-
-            let uptime = deviceData['Uptime (sec)'];
-            let pwrCons = deviceData['VDD3 (mV)'];          // vdd
-            let chipTemp = deviceData['On-Chip Temp (C)'];  // chipTemp
-            let RSSI = deviceData['RSSI (dBm)']; // rssi radio strength
-            let defRoute = deviceData['Def Route'];
-
-            // fields (values)
-
-            let seqNr = deviceData['Seq #']; // seq
-            let ambTemp = deviceData['Ambiental Temp (mC)']; // ambTemp
-            let light = deviceData['Light (Lux)'];          // light
-
-            // Tags
-
-            dbClient.writePoint('Devices', { Seq_nr : seqNr, Uptime_sec: uptime, RSSI_dbm: RSSI, Ambient_temp : ambTemp, Light_lux : light, Chip_temp : chipTemp,  VDD3_mV : pwrCons }, { Device_Id : deviceId, myName: myName , Def_route: defRoute }, function(err, response){});
-        }
-
-        if(deviceType === 'E103') {
-            let uptime = deviceData['Uptime (sec)'];
-            let seqNr = deviceData['Seq #'];
-            let RSSI = deviceData['RSSI (dBm)'];
-            let chipTemp = deviceData['On-Chip Temp (C)'];
-            let pwrCons = deviceData['VDD3 (mV)'];
-
-            // Tags
-            let defRoute = deviceData['Def Route'];
-
-            dbClient.writePoint('Devices', { Seq_nr : seqNr, Uptime_sec: uptime, RSSI_dbm: RSSI, Chip_temp : chipTemp,  VDD3_mV : pwrCons }, { Device_Id : deviceId, myName: myName , Def_route: defRoute }, function(err, response){});
-        }
+        dbClient.writePoint('Devices', {
+            temperature_celsius: deviceData.temperature_celsius,
+            light_lux: deviceData.light_lux
+        }, {Device_Id: deviceId}, function (err, response) {
         });
-
+    });
+    
 // Error handling application
 
     appClient.on('error', function (err) {

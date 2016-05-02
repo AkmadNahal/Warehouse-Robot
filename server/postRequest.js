@@ -1,5 +1,4 @@
 import { request } from '../app-compiled';
-import { writeAfile } from './createDataDump-compiled';
 
 export function postRequest() {
 
@@ -44,7 +43,6 @@ export function postRequest() {
         function (error, response, body) {
             var payload = JSON.parse(body);
             console.log(payload.authToken);
-            writeAfile('../../../../../credentials.txt', payload.authToken);
         }
         // should be positioned in user directory
         // . . . .  /etc/mosquitto/conf.d/credentials.conf
