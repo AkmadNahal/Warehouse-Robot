@@ -32,7 +32,7 @@ class WheelsThread(threading.Thread):
         self.rMtr.stop()
         self.lMtr.stop()
 
-## THIS IS A RANDOM COMMENTs
+## THIS IS A RANDOM COMMENTs AND I ADD THIS
 
 class GripThread(threading.Thread):
     def __init__(self):
