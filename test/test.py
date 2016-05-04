@@ -32,6 +32,7 @@ class WheelsThread(threading.Thread):
         self.rMtr.stop()
         self.lMtr.stop()
 
+
 class GripThread(threading.Thread):
     def __init__(self):
         self.mMtr = ev3.MediumMotor(ev3.OUTPUT_A)
