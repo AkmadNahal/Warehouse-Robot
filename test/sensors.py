@@ -6,37 +6,45 @@ import ev3dev.auto as ev3
 #
 #
 #
-class ColorSensors():
-    def __init__(self):
-        self.line_clr = ev3.ColorSensor(ev3.INPUT_3);   assert self.line_clr.connected
-        self.tag_clr = ev3.ColorSensor(ev3.INPUT_1);    assert self.tag_clr.connected
-        self.line_clr.mode = self.tag_clr.mode = 'COL-REFLECT'
+class ColorSensors:
+    line_clr = ev3.ColorSensor(ev3.INPUT_3); assert line_clr.connected
+    tag_clr = ev3.ColorSensor(ev3.INPUT_1); assert tag_clr.connected
+    line_clr.mode = tag_clr.mode = 'COL-REFLECT'
 
-    def get_values(self):
-        return self.line_clr.value(), self.tag_clr.value()
+    @classmethod
+    def get_values(cls):
+        return cls.line_clr.value(), cls.tag_clr.value()
 
-    def get_line_value(self):
-        return self.line_clr.value()
+    @classmethod
+    def get_line_value(cls):
+        return cls.line_clr.value()
 
-    def get_tag_value(self):
-        return self.tag_clr.value()
+    @classmethod
+    def get_tag_value(cls):
+        return cls.tag_clr.value()
 
 
-class UltrasonicSensor():
-    def __init__(self):
-        self.ultrasonic = ev3.UltrasonicSensor(ev3.INPUT_4)
-        self.ultrasonic.mode = 'US-DIST-CM'
+#
+#
+#
+#
+class UltrasonicSensor:
+    ultrasonic = ev3.UltrasonicSensor(ev3.INPUT_4)
+    ultrasonic.mode = 'US-DIST-CM'
 
-    def get_dist(self):
-        return self.ultrasonic.value()
+    @classmethod
+    def get_dist(cls):
+        return cls.ultrasonic.value()
 
+
+#
+#
+#
+#
 class GyroSensor():
-    def __init__(self):
-        self.gyro = ev3.GyroSensor(ev3.INPUT_2)
-        self.gyro.mode = 'GYRO-ANG'
+    gyro = ev3.GyroSensor(ev3.INPUT_2)
+    gyro.mode = 'GYRO-ANG'
 
-    def get_value(self):
-        return self.gyro.value()
-
-
-
+    @classmethod
+    def get_value(cls):
+        return cls.gyro.value()
