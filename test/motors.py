@@ -50,6 +50,16 @@ def steering(course, power):
 
     return (int(power_left), int(power_right))
 
+class GripPosition:
+    up, down = 0, -0.15
+
+
+
+class Motors():
+    def __init__(self):
+        self.right_mtr = ev3.LargeMotor(ev3.OUTPUT_D);  assert self.right_mtr.connected
+        self.left_mtr = ev3.LargeMotor(ev3.OUTPUT_C);   assert self.left_mtr.connected
+        self.grip_mtr = ev3.MediumMotor(ev3.OUTPUT_A);  assert self.grip_mtr.connected
 
 
 #
@@ -57,19 +67,42 @@ def steering(course, power):
 #
 class Wheels():
     def __init__(self):
-        self.rMtr = ev3.LargeMotor(ev3.OUTPUT_D);   assert self.rMtr.connected
-        self.lMtr = ev3.LargeMotor(ev3.OUTPUT_C);   assert self.lMtr.connected
+        mtrs = Motors()
+        self.right_wheel = mtrs.right_mtr
+        self.left_wheel = mtrs.left_mtr
 
     def start(self):
-        self.rMtr.duty_cycle_sp = 0
-        self.lMtr.duty_cycle_sp = 0
-        self.rMtr.run_direct()
-        self.lMtr.run_direct()
+        self.right_wheel.duty_cycle_sp = 0
+        self.left_wheel.duty_cycle_sp = 0
+        self.right_wheel.run_direct()
+        self.left_wheel.run_direct()
 
     def stop(self):
-        self.rMtr.stop()
-        self.lMtr.stop()
+        self.right_wheel.stop()
+        self.left_wheel.stop()
 
     def set_sp(self, rm_sp, lm_sp):
-        self.rMtr.duty_cycle_sp = rm_sp
-        self.lMtr.duty_cycle_sp = lm_sp
+        if rm_sp != None:
+            self.right_wheel.duty_cycle_sp = rm_sp
+        if lm_sp != None:
+            self.left_wheel.duty_cycle_sp = lm_sp
+
+    def turn_right_rel(self, rot):
+        if rot > 0:
+            self.left_wheel.run_to_rel_pos(position_sp=rot*self.left_wheel.count_per_rot, duty_cycle_sp=40)
+        elif rot < 0:
+            self.right_wheel.run_to_rel_pos(position_sp=rot*self.right_wheel.count_per_rot, duty_cycle_sp=40)
+
+    def turn_left_rel(self, rot):
+        if rot > 0:
+            self.right_wheel.run_to_rel_pos(position_sp=rot*self.right_wheel.count_per_rot, duty_cycle_sp=40)
+        elif rot < 0:
+            self.left_wheel.run_to_rel_pos(position_sp=rot*self.left_wheel.count_per_rot, duty_cycle_sp=40)
+
+    def get_status(self):
+        if self.right_wheel.state == ['running']:
+            return True
+        elif self.left_wheel.state == ['running']:
+            return  True
+        else:
+            return  False
