@@ -1,4 +1,4 @@
-#!/usr/bin/evn python
+#!/usr/bin/python
 import ev3dev.auto as ev3
 import threading
 import time
@@ -50,7 +50,6 @@ def steering(course, power):
 
 
 mMtr_pos = Position.up
-
 running = True
 
 
@@ -101,31 +100,50 @@ class ColorSensors():
         self.lClr.mode = 'COL-REFLECT'
 
 class NavigationThread(threading.Thread):
-    def __init__(self, kp=0.65, kd=1, ki=0.02):
+    def __init__(self, kp=0.65, kd=1, ki=0.02, direction=1, power=50):
         self.wheels = Wheels()
         self.clrs = ColorSensors()
         self.kp = kp
         self.kd = kd
         self.ki = ki
+        self.command = ""
+        self.direction = direction
+        self.power = power
         self.minRef, self.maxRef, self.target = self.calibrate()
         threading.Thread.__init__(self)
 
-    def follow_line(self, direction=1, power=60):
+    def correct_path(self):
+        refRead = self.clrs.rClr.value()
+        error = self.target - (100 * (refRead - self.minRef) / (self.maxRef - self.minRef))
+        derivative = error - self.lastError
+        self.lastError = error
+        integral = 0.5 * self.integral + error
+        course = (self.kp * error + self.kd * derivative + self.ki * integral) * self.direction
+        self.wheels.set_sp(*steering(course, self.power))
+
+
+    def go_to_start(self):
         self.wheels.start()
         self.following = True
-        lastError = error = integral = 0
-        while self.following:
-            refRead = self.clrs.rClr.value()
-            error = self.target - (100 * (refRead - self.minRef) / (self.maxRef - self.minRef))
-            derivative = error - lastError
-            lastError = error
-            integral = float(0.5) * integral + error
-            course = (self.kp * error + self.kd * derivative + self.ki * integral) * direction
-            self.wheels.set_sp(*steering(course, power))
-            time.sleep(0.01)  # Aprox 100 Hz
+        self.lastError = self.integral = 0
+        while running:
+            self.correct_path()
+            if self.clrs.lClr.value() > self.maxRef + 10:
+                break
+            if self.clrs.lClr.value() < self.minRef + 10:
+                self.wheels.set_sp(self.wheels.rMtr.duty_cycle_sp, 100)
+                time.sleep(0.2)
+                continue
+            time.sleep(0.01)
+        self.wheels.stop()
 
     def run(self):
-        self.follow_line()
+        while running:
+            if self.command == "":
+                continue
+            elif self.command == "go-to-start":
+                self.go_to_start()
+                self.command = ""
 
 
 
@@ -149,8 +167,8 @@ class NavigationThread(threading.Thread):
                 min = val
         self.wheels.lMtr.run_to_rel_pos(position_sp=0.52*self.wheels.lMtr.count_per_rot, duty_cycle_sp=40)
         wait_motor(self.wheels.lMtr)
-        print (min, max, (min+max)/2)
-        return min, max, (min+max)/2
+        print (min, max, max/2)
+        return min, max, max/2
 
 
 
@@ -159,8 +177,9 @@ if __name__ == "__main__":
     grip_thread = GripThread()
     grip_thread.start()
     nav = NavigationThread()
+    nav.command = "go-to-start"
     nav.start()
-    time.sleep(5)
+    time.sleep(20)
 
     running = False
     nav.following = False
