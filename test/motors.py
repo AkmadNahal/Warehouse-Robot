@@ -13,15 +13,13 @@ class Motors:
     grip_mtr = ev3.MediumMotor(ev3.OUTPUT_A); assert grip_mtr.connected
 
     @staticmethod
-    def wait_motor(motor):
-        while not motor.state:
-            pass
+    def motor_running(motor):
+        return motor.state == ["running"]
 
     @staticmethod
-    def motor_running(motor):
-        if not motor.state:
-            return True
-        return False
+    def wait_motor(motor):
+        while Motors.motor_running(motor):
+            pass
 
 
 #
@@ -74,13 +72,8 @@ class Wheels:
                 Motors.wait_motor(cls.left_wheel)
 
     @classmethod
-    def get_status(cls):
-        if Motors.motor_running(cls.right_wheel):
-            return True
-        elif Motors.motor_running(cls.left_wheel):
-            return True
-        else:
-            return False
+    def wheels_running(cls):
+        return Motors.motor_running(cls.right_wheel) or Motors.motor_running(cls.left_wheel)
 
     @staticmethod
     def steering(course, power):
@@ -100,7 +93,7 @@ class Wheels:
 
     @classmethod
     def wait_wheels(cls):
-        while cls.get_status():
+        while cls.wheels_running():
             pass
 
 #

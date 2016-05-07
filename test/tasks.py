@@ -4,6 +4,7 @@ import time
 from motors import *
 from sensors import *
 
+
 #
 #
 #
@@ -35,14 +36,14 @@ class Navigation:
         max = 0
 
         Wheels.turn_right_rel(0.5, False)
-        while Wheels.get_status():
+        while Wheels.wheels_running():
             val = ColorSensors.get_line_value()
             if val > max:
                 max = val
             if val < min:
                 min = val
         Wheels.turn_left_rel(-1, False)
-        while Wheels.get_status():
+        while Wheels.wheels_running():
             val = ColorSensors.get_line_value()
             if val > max:
                 max = val
@@ -79,7 +80,6 @@ class Navigation:
     @classmethod
     def tag_counter(cls):
         cls.tag_ctr = 0
-        time.sleep(0.2)
         while cls.running:
             if ColorSensors.get_tag_value() < cls.min_ref + 10:
                 cls.tag_ctr += 1
@@ -117,10 +117,14 @@ class Navigation:
 
         def go_to_local():
             x_from, y_from = cls.current_location
-            cls.follow_line_until((cls.x_tags + x_to - x_from) % cls.x_tags)
+            if x_from < x_to:
+                cls.follow_line_until(x_to - x_from)
+            elif x_from > x_to:
+                Wheels.turn_right_rel(1.1)
+                cls.follow_line_until(cls.y_tags + 1 + x_to)
             if y_to > 0:
-                Wheels.turn_right_rel(0.5)
-                cls.follow_line_until(y_to + 1)
+                Wheels.turn_right_rel(1.1)
+                cls.follow_line_until(y_to)
 
         if y_from > 0:
             if x_from == x_to:
@@ -139,10 +143,6 @@ class Navigation:
         return 0
 
 
-
-
-
-
 #
 #
 #
@@ -151,6 +151,8 @@ class ControlThread(threading.Thread):
     def __init__(self):
         self.command = ""
         self.running = False
+        self.active = False
+        self.commands = ["go-to-start", "go-to-location"]
         threading.Thread.__init__(self)
 
     def run(self):
@@ -160,19 +162,17 @@ class ControlThread(threading.Thread):
             time.sleep(0.05)
         self.running = True
         while self.running:
-            if self.command == "":
-                continue
-            else:
+            if self.command != "":
                 cmd = self.command.strip().split()
+                if cmd[0] not in self.commands or len(cmd) > 1 and (not cmd[1].isdigit() or not cmd[2].isdigit()):
+                    continue
                 if cmd[0] == "go-to-start":
                     Navigation.go_to_start()
                 elif cmd[0] == "go-to-location":
                     Navigation.go_to_location((int(cmd[1]), int(cmd[2])))
                 self.command = ""
-
             time.sleep(0.1)
         self.running = False
-
 
     def stop(self):
         self.running = False

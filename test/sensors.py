@@ -29,7 +29,7 @@ class ColorSensors:
 #
 #
 class UltrasonicSensor:
-    ultrasonic = ev3.UltrasonicSensor(ev3.INPUT_4)
+    ultrasonic = ev3.UltrasonicSensor(ev3.INPUT_4); assert ultrasonic.connected
     ultrasonic.mode = 'US-DIST-CM'
 
     @classmethod
@@ -42,7 +42,7 @@ class UltrasonicSensor:
 #
 #
 class GyroSensor():
-    gyro = ev3.GyroSensor(ev3.INPUT_2)
+    gyro = ev3.GyroSensor(ev3.INPUT_2); assert gyro.connected
     gyro.mode = 'GYRO-ANG'
 
     @classmethod
