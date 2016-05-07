@@ -14,8 +14,14 @@ class Motors:
 
     @staticmethod
     def wait_motor(motor):
-        while motor.state == ['running']:
+        while not motor.state:
             pass
+
+    @staticmethod
+    def motor_running(motor):
+        if not motor.state:
+            return True
+        return False
 
 
 #
@@ -69,9 +75,9 @@ class Wheels:
 
     @classmethod
     def get_status(cls):
-        if cls.right_wheel.state == ['running']:
+        if Motors.motor_running(cls.right_wheel):
             return True
-        elif cls.left_wheel.state == ['running']:
+        elif Motors.motor_running(cls.left_wheel):
             return True
         else:
             return False

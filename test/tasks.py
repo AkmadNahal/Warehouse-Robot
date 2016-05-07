@@ -17,6 +17,8 @@ class Navigation:
     current_location = None
     x_tags = y_tags = None
 
+    tag_ctr = 0
+
     @classmethod
     def init(cls, kp=0.65, kd=1, ki=0.02, direction=1, power=50):
         cls.kp = kp
@@ -24,8 +26,7 @@ class Navigation:
         cls.ki = ki
         cls.direction = direction
         cls.power = power
-        cls.x_tags = 4
-        cls.y_tags = 3
+        cls.x_tags = cls.y_tags = 4
         threading.Thread(target=Navigation.calibrate, name='init-nav-calibrate').start()
 
     @classmethod
@@ -76,33 +77,70 @@ class Navigation:
         cls.current_location = (0, 0)
 
     @classmethod
+    def tag_counter(cls):
+        cls.tag_ctr = 0
+        time.sleep(0.2)
+        while cls.running:
+            if ColorSensors.get_tag_value() < cls.min_ref + 10:
+                cls.tag_ctr += 1
+                time.sleep(0.2)
+
+    @classmethod
     def follow_line_until(cls, n_tags):
         Wheels.start()
         last_error = integral = 0
-        ctr = 0
         cls.running = True
+        cls.tag_ctr = 0
+        threading.Thread(target=Navigation.tag_counter, name='line_follower-nav-tag_counter').start()
         while cls.running:
             last_error, integral = cls.correct_path(last_error, integral)
-            if ColorSensors.get_tag_value() < cls.min_ref + 10:
-                ctr += 1
-                if ctr == n_tags:
-                    break
-                time.sleep(0.1)
-                continue
+            if cls.tag_ctr == n_tags:
+                break
             time.sleep(0.01)
         Wheels.stop()
         cls.running = False
 
     @classmethod
     def go_to_location(cls, loc):
+
+        if cls.current_location is None:
+            return 2
+
         x_to, y_to = loc
         x_from, y_from = cls.current_location
 
-        if cls.current_location == loc:
-            return
+        if x_to < 0 or y_to < 0 or x_to >= cls.x_tags or y_to >= cls.y_tags:
+            return 1
 
-        cls.follow_line_until((cls.x_tags + x_to - x_from) % cls.x_tags)
+        if cls.current_location == loc:
+            return 0
+
+        def go_to_local():
+            x_from, y_from = cls.current_location
+            cls.follow_line_until((cls.x_tags + x_to - x_from) % cls.x_tags)
+            if y_to > 0:
+                Wheels.turn_right_rel(0.5)
+                cls.follow_line_until(y_to + 1)
+
+        if y_from > 0:
+            if x_from == x_to:
+                if y_from < y_to:
+                    cls.follow_line_until(y_to - y_from)
+                else:
+                    cls.go_to_start()
+                    go_to_local()
+            else:
+                cls.go_to_start()
+                go_to_local()
+        else:
+            go_to_local()
+
         cls.current_location = loc
+        return 0
+
+
+
+
 
 
 #
