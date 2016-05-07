@@ -109,7 +109,7 @@ class Navigation:
         x_to, y_to = loc
         x_from, y_from = cls.current_location
 
-        if x_to < 0 or y_to < 0 or x_to >= cls.x_tags or y_to >= cls.y_tags:
+        if x_to < 0 or y_to < 0 or x_to >= cls.x_tags or y_to >= cls.y_tags or (x_to == 0 and y_to > 0):
             return 1
 
         if cls.current_location == loc:
