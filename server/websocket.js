@@ -32,8 +32,7 @@ function socketSetup() {
 
         clientConSock.on('add_box', function(box) {
             tryInsertBox(box, function(result) {
-                console.log(result);
-                console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+                clientConSock.emit('add_box_status', result);
             });
         });
     });
