@@ -9,13 +9,20 @@ from sensors import *
 #
 #
 #
+class Coordination:
+    current_location = None
+
+#
+#
+#
+#
 class Navigation:
 
     kp = kd = ki = direction = power = None
     min_ref = max_ref = target = None
     running = False
 
-    current_location = None
+
     x_tags = y_tags = None
 
     tag_ctr = 0
@@ -75,7 +82,7 @@ class Navigation:
             time.sleep(0.01)
         Wheels.stop()
         cls.running = False
-        cls.current_location = (0, 0)
+        Coordination.current_location = (0, 0)
 
     @classmethod
     def tag_counter(cls):
@@ -103,20 +110,20 @@ class Navigation:
     @classmethod
     def go_to_location(cls, loc):
 
-        if cls.current_location is None:
+        if Coordination.current_location is None:
             return 2
 
         x_to, y_to = loc
-        x_from, y_from = cls.current_location
+        x_from, y_from = Coordination.current_location
 
         if x_to < 0 or y_to < 0 or x_to >= cls.x_tags or y_to >= cls.y_tags or (x_to == 0 and y_to > 0):
             return 1
 
-        if cls.current_location == loc:
+        if Coordination.current_location == loc:
             return 0
 
         def go_to_local():
-            x_from, y_from = cls.current_location
+            x_from, y_from = Coordination.current_location
             if x_from < x_to:
                 cls.follow_line_until(x_to - x_from)
             elif x_from > x_to:
@@ -139,9 +146,20 @@ class Navigation:
         else:
             go_to_local()
 
-        cls.current_location = loc
+        Coordination.current_location = loc
         return 0
 
+
+#
+#
+#
+#
+class BoxCollector:
+    @classmethod
+    def collect_box(cls):
+        if Coordination.current_location == (0, 0):
+
+        # else:
 
 #
 #
