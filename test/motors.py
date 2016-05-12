@@ -72,6 +72,27 @@ class Wheels:
                 Motors.wait_motor(cls.left_wheel)
 
     @classmethod
+    def turn_right_forever(cls, direction=1):
+        if direction > 0:
+            cls.left_wheel.run_forever(duty_cycle_sp=40)
+        else:
+            cls.right_wheel.run_forever(duty_cycle_sp=-40)
+
+    @classmethod
+    def turn_left_forever(cls, direction=1):
+        if direction > 0:
+            cls.right_wheel.run_forever(duty_cycle_sp=40)
+        else:
+            cls.left_wheel.run_forever(duty_cycle_sp=-40)
+
+    @classmethod
+    def move_rel(cls, rot, wait=True):
+        cls.right_wheel.run_to_rel_pos(position_sp=rot * cls.right_wheel.count_per_rot, duty_cycle_sp=40)
+        cls.left_wheel.run_to_rel_pos(position_sp=rot * cls.left_wheel.count_per_rot, duty_cycle_sp=40)
+        if wait:
+            Wheels.wait_wheels()
+
+    @classmethod
     def wheels_running(cls):
         return Motors.motor_running(cls.right_wheel) or Motors.motor_running(cls.left_wheel)
 

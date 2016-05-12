@@ -9,26 +9,20 @@ from sensors import *
 #
 #
 #
-class Coordination:
-    current_location = None
-
-#
-#
-#
-#
 class Navigation:
 
     kp = kd = ki = direction = power = None
     min_ref = max_ref = target = None
     running = False
 
+    current_location = None
 
     x_tags = y_tags = None
 
     tag_ctr = 0
 
     @classmethod
-    def init(cls, kp=0.65, kd=1, ki=0.02, direction=1, power=50):
+    def init(cls, kp=0.65, kd=1, ki=0.02, direction=1, power=40):
         cls.kp = kp
         cls.kd = kd
         cls.ki = ki
@@ -72,17 +66,8 @@ class Navigation:
 
     @classmethod
     def go_to_start(cls):
-        Wheels.start()
-        last_error = integral = 0
-        cls.running = True
-        while cls.running:
-            last_error, integral = cls.correct_path(last_error, integral)
-            if ColorSensors.get_tag_value() > cls.max_ref + 10:
-                break
-            time.sleep(0.01)
-        Wheels.stop()
-        cls.running = False
-        Coordination.current_location = (0, 0)
+        cls.follow_line_until_wtag()
+        cls.current_location = (0, 0)
 
     @classmethod
     def tag_counter(cls):
@@ -108,22 +93,45 @@ class Navigation:
         cls.running = False
 
     @classmethod
+    def follow_line_until_wtag(cls):
+        Wheels.start()
+        last_error = integral = 0
+        cls.running = True
+        while cls.running:
+            last_error, integral = cls.correct_path(last_error, integral)
+            if ColorSensors.get_tag_value() > Navigation.max_ref + 5:
+                break
+            time.sleep(0.01)
+        Wheels.stop()
+        cls.running = False
+
+    def follow_line_forever(cls):
+        Wheels.start()
+        last_error = integral = 0
+        cls.running = True
+        while cls.running:
+            last_error, integral = cls.correct_path(last_error, integral)
+            time.sleep(0.01)
+        Wheels.stop()
+        cls.running = False
+
+    @classmethod
     def go_to_location(cls, loc):
 
-        if Coordination.current_location is None:
+        if cls.current_location is None:
             return 2
 
         x_to, y_to = loc
-        x_from, y_from = Coordination.current_location
+        x_from, y_from = cls.current_location
 
         if x_to < 0 or y_to < 0 or x_to >= cls.x_tags or y_to >= cls.y_tags or (x_to == 0 and y_to > 0):
             return 1
 
-        if Coordination.current_location == loc:
+        if cls.current_location == loc:
             return 0
 
         def go_to_local():
-            x_from, y_from = Coordination.current_location
+            x_from, y_from = cls.current_location
             if x_from < x_to:
                 cls.follow_line_until(x_to - x_from)
             elif x_from > x_to:
@@ -146,7 +154,7 @@ class Navigation:
         else:
             go_to_local()
 
-        Coordination.current_location = loc
+        cls.current_location = loc
         return 0
 
 
@@ -154,12 +162,46 @@ class Navigation:
 #
 #
 #
-# class BoxCollector:
-    # @classmethod
-    # def collect_box(cls):
-        # if Coordination.current_location == (0, 0):
+class BoxCollector:
 
-        # else:
+    @classmethod
+    def collect_box(cls):
+        if Navigation.current_location == (0, 0):
+            if 5 < UltrasonicSensor.get_dist() / 10 < 40:
+                Wheels.move_rel(0.1)
+                Navigation.follow_line_until_wtag()
+                Grip.move_down()
+                return 0
+            else:
+                return 1
+        else:
+            Wheels.turn_right_rel(1)
+            if 5 < UltrasonicSensor.get_dist() / 10 < 40:
+                Navigation.follow_line_until_wtag()
+                Grip.move_down()
+                # TODO: get back to grid
+                return 0
+            else:
+                Wheels.turn_left_rel(-1)
+                return 1
+
+    @classmethod
+    def place_box(cls):
+        if Navigation.current_location == (0, 0):
+            Wheels.move_rel(0.1)
+            Navigation.follow_line_until_wtag()
+            Grip.move_up()
+            Wheels.move_rel(-0.7)
+            return 0
+        else:
+            Wheels.turn_right_rel(0.9)
+            Navigation.follow_line_until_wtag()
+            Grip.move_up()
+            # TODO: get back tto grid
+
+
+
+
 
 #
 #
@@ -170,7 +212,7 @@ class ControlThread(threading.Thread):
         self.command = ""
         self.running = False
         self.active = False
-        self.commands = ["go-to-start", "go-to-location"]
+        self.commands = ["go-to-start", "go-to-location", "collect-box", "place-box"]
         threading.Thread.__init__(self)
 
     def run(self):
@@ -188,6 +230,10 @@ class ControlThread(threading.Thread):
                     Navigation.go_to_start()
                 elif cmd[0] == "go-to-location":
                     Navigation.go_to_location((int(cmd[1]), int(cmd[2])))
+                elif cmd[0] == "collect-box":
+                    BoxCollector.collect_box()
+                elif cmd[0] == "place-box":
+                    BoxCollector.place_box()
                 self.command = ""
             time.sleep(0.1)
         self.running = False
