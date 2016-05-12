@@ -154,10 +154,10 @@ class Navigation:
 #
 #
 #
-class BoxCollector:
-    @classmethod
-    def collect_box(cls):
-        if Coordination.current_location == (0, 0):
+# class BoxCollector:
+    # @classmethod
+    # def collect_box(cls):
+        # if Coordination.current_location == (0, 0):
 
         # else:
 
