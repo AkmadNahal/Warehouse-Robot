@@ -11,9 +11,9 @@ from sensors import *
 #
 class Navigation:
 
-    kp = kd = ki = direction = power = None
+    kp = kd = ki = direction = def_power = None
     min_ref = max_ref = target = None
-    running = False
+    running = ctr_running = use_tag_ctr = False
 
     current_location = None
 
@@ -27,9 +27,11 @@ class Navigation:
         cls.kd = kd
         cls.ki = ki
         cls.direction = direction
-        cls.power = power
+        cls.def_power = Wheels.power = power
         cls.x_tags = cls.y_tags = 4
-        threading.Thread(target=Navigation.calibrate, name='init-nav-calibrate').start()
+        threading.Thread(target=cls.calibrate, name='init-nav-calibrate').start()
+        threading.Thread(target=cls.tag_counter, name='nav-tag_ctr').start()
+
 
     @classmethod
     def calibrate(cls):
@@ -61,7 +63,7 @@ class Navigation:
         last_error = error
         integral = 0.5 * integral + error
         course = (cls.kp * error + cls.kd * derivative + cls.ki * integral) * cls.direction
-        Wheels.set_sp(*Wheels.steering(course, cls.power))
+        Wheels.set_sp(*Wheels.steering(course, Wheels.power))
         return last_error, integral
 
     @classmethod
@@ -72,25 +74,27 @@ class Navigation:
     @classmethod
     def tag_counter(cls):
         cls.tag_ctr = 0
-        while cls.running:
-            if ColorSensors.get_tag_value() < cls.min_ref + 10:
-                cls.tag_ctr += 1
-                time.sleep(0.2)
+        cls.ctr_running = True
+        while cls.ctr_running:
+            if cls.use_tag_ctr:
+                if ColorSensors.get_tag_value() < cls.min_ref + 10:
+                    cls.tag_ctr += 1
+                    time.sleep(0.2)
+            time.sleep(0.01)
 
     @classmethod
     def follow_line_until(cls, n_tags):
         Wheels.start()
         last_error = integral = 0
-        cls.running = True
         cls.tag_ctr = 0
-        threading.Thread(target=Navigation.tag_counter, name='line_follower-nav-tag_counter').start()
+        cls.running = cls.use_tag_ctr = True
         while cls.running:
             last_error, integral = cls.correct_path(last_error, integral)
             if cls.tag_ctr == n_tags:
                 break
             time.sleep(0.01)
         Wheels.stop()
-        cls.running = False
+        cls.use_tag_ctr = cls.running = False
 
     @classmethod
     def follow_line_until_wtag(cls):
@@ -157,6 +161,53 @@ class Navigation:
         cls.current_location = loc
         return 0
 
+    @classmethod
+    def turn_right_until(cls, n_tags, direction=1):
+        Wheels.turn_right_forever(direction)
+        time.sleep(0.3)
+        cls.tag_ctr = 0
+        cls.running = cls.use_tag_ctr = True
+        while cls.running and cls.tag_ctr < n_tags:
+            pass
+        Wheels.stop()
+        cls.running = cls.use_tag_ctr = False
+
+    @classmethod
+    def turn_left_until(cls, n_tags, direction=1):
+        Wheels.turn_left_forever(direction)
+        time.sleep(0.3)
+        cls.tag_ctr = 0
+        cls.running = cls.use_tag_ctr = True
+        while cls.running and cls.tag_ctr < n_tags:
+            pass
+        Wheels.stop()
+        cls.running = cls.use_tag_ctr = False
+
+    @classmethod
+    def move_until(cls, n_tags, direction=1):
+        Wheels.start()
+        Wheels.set_sp(direction*Wheels.power, direction*Wheels.power)
+        time.sleep(0.3)
+        cls.tag_ctr = 0
+        cls.running = cls.use_tag_ctr = True
+        while cls.running and cls.tag_ctr < n_tags:
+            pass
+        Wheels.stop()
+        cls.running = cls.use_tag_ctr = False
+
+    @classmethod
+    def set_power(cls, power):
+        Wheels.power = power
+
+    @classmethod
+    def reset_power(cls):
+        Wheels.power = cls.def_power
+
+    @classmethod
+    def stop(cls):
+        Wheels.stop()
+        cls.running = cls.ctr_running = False
+
 
 #
 #
@@ -164,43 +215,51 @@ class Navigation:
 #
 class BoxCollector:
 
+    power = 30
+
     @classmethod
     def collect_box(cls):
+        Navigation.set_power(cls.power)
         if Navigation.current_location == (0, 0):
             if 5 < UltrasonicSensor.get_dist() / 10 < 40:
                 Wheels.move_rel(0.1)
                 Navigation.follow_line_until_wtag()
                 Grip.move_down()
-                return 0
             else:
+                Navigation.reset_power()
                 return 1
         else:
-            Wheels.turn_right_rel(1)
+            Navigation.turn_right_until(2)
+            while len(filter(lambda x: 'tag_counter' in x.getName(), threading.enumerate())) > 0:
+                time.sleep(0.05)
             if 5 < UltrasonicSensor.get_dist() / 10 < 40:
                 Navigation.follow_line_until_wtag()
                 Grip.move_down()
-                # TODO: get back to grid
-                return 0
+                Navigation.move_until(1, -1)
+                Navigation.turn_left_until(2, -1)
             else:
-                Wheels.turn_left_rel(-1)
+                Navigation.turn_left_until(2, -1)
+                Navigation.reset_power()
                 return 1
+        Navigation.reset_power()
+        return 0
 
     @classmethod
     def place_box(cls):
+        Navigation.set_power(cls.power)
         if Navigation.current_location == (0, 0):
             Wheels.move_rel(0.1)
             Navigation.follow_line_until_wtag()
             Grip.move_up()
             Wheels.move_rel(-0.7)
-            return 0
+
         else:
             Wheels.turn_right_rel(0.9)
             Navigation.follow_line_until_wtag()
             Grip.move_up()
-            # TODO: get back tto grid
-
-
-
+            Navigation.move_until(1, -1)
+            Navigation.turn_left_until(2, -1)
+        Navigation.reset_power()
 
 
 #
@@ -212,7 +271,7 @@ class ControlThread(threading.Thread):
         self.command = ""
         self.running = False
         self.active = False
-        self.commands = ["go-to-start", "go-to-location", "collect-box", "place-box"]
+        self.commands = ["go-to-start", "go-to-location", "collect-box", "place-box", "insert-box", "remove-box"]
         threading.Thread.__init__(self)
 
     def run(self):
@@ -234,9 +293,23 @@ class ControlThread(threading.Thread):
                     BoxCollector.collect_box()
                 elif cmd[0] == "place-box":
                     BoxCollector.place_box()
+                elif cmd[0] == "insert-box":
+                    Navigation.go_to_location((0, 0))
+                    ret = BoxCollector.collect_box()
+                    if ret == 0:
+                        Navigation.go_to_location((int(cmd[1]), int(cmd[2])))
+                        BoxCollector.place_box()
+                        Navigation.go_to_location((0, 0))
+                elif cmd[0] == "remove-box":
+                    Navigation.go_to_location((int(cmd[1]), int(cmd[2])))
+                    ret = BoxCollector.collect_box()
+                    Navigation.go_to_location((0, 0))
+                    if ret == 0:
+                        BoxCollector.place_box()
                 self.command = ""
             time.sleep(0.1)
         self.running = False
 
     def stop(self):
         self.running = False
+        Navigation.stop()

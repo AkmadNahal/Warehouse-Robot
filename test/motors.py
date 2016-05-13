@@ -29,6 +29,7 @@ class Motors:
 class Wheels:
     right_wheel = Motors.right_mtr
     left_wheel = Motors.left_mtr
+    power = 40
 
     @classmethod
     def start(cls):
@@ -52,43 +53,43 @@ class Wheels:
     @classmethod
     def turn_right_rel(cls, rot, wait=True):
         if rot > 0:
-            cls.left_wheel.run_to_rel_pos(position_sp=rot*cls.left_wheel.count_per_rot, duty_cycle_sp=40)
+            cls.left_wheel.run_to_rel_pos(position_sp=rot*cls.left_wheel.count_per_rot, duty_cycle_sp=cls.power)
             if wait:
                 Motors.wait_motor(cls.left_wheel)
         elif rot < 0:
-            cls.right_wheel.run_to_rel_pos(position_sp=rot*cls.right_wheel.count_per_rot, duty_cycle_sp=40)
+            cls.right_wheel.run_to_rel_pos(position_sp=rot*cls.right_wheel.count_per_rot, duty_cycle_sp=cls.power)
             if wait:
                 Motors.wait_motor(cls.right_wheel)
 
     @classmethod
     def turn_left_rel(cls, rot, wait=True):
         if rot > 0:
-            cls.right_wheel.run_to_rel_pos(position_sp=rot*cls.right_wheel.count_per_rot, duty_cycle_sp=40)
+            cls.right_wheel.run_to_rel_pos(position_sp=rot*cls.right_wheel.count_per_rot, duty_cycle_sp=cls.power)
             if wait:
                 Motors.wait_motor(cls.right_wheel)
         elif rot < 0:
-            cls.left_wheel.run_to_rel_pos(position_sp=rot*cls.left_wheel.count_per_rot, duty_cycle_sp=40)
+            cls.left_wheel.run_to_rel_pos(position_sp=rot*cls.left_wheel.count_per_rot, duty_cycle_sp=cls.power)
             if wait:
                 Motors.wait_motor(cls.left_wheel)
 
     @classmethod
     def turn_right_forever(cls, direction=1):
         if direction > 0:
-            cls.left_wheel.run_forever(duty_cycle_sp=40)
+            cls.left_wheel.run_forever(duty_cycle_sp=cls.power)
         else:
-            cls.right_wheel.run_forever(duty_cycle_sp=-40)
+            cls.right_wheel.run_forever(duty_cycle_sp=-cls.power)
 
     @classmethod
     def turn_left_forever(cls, direction=1):
         if direction > 0:
-            cls.right_wheel.run_forever(duty_cycle_sp=40)
+            cls.right_wheel.run_forever(duty_cycle_sp=cls.power)
         else:
-            cls.left_wheel.run_forever(duty_cycle_sp=-40)
+            cls.left_wheel.run_forever(duty_cycle_sp=-cls.power)
 
     @classmethod
     def move_rel(cls, rot, wait=True):
-        cls.right_wheel.run_to_rel_pos(position_sp=rot * cls.right_wheel.count_per_rot, duty_cycle_sp=40)
-        cls.left_wheel.run_to_rel_pos(position_sp=rot * cls.left_wheel.count_per_rot, duty_cycle_sp=40)
+        cls.right_wheel.run_to_rel_pos(position_sp=rot * cls.right_wheel.count_per_rot, duty_cycle_sp=cls.power)
+        cls.left_wheel.run_to_rel_pos(position_sp=rot * cls.left_wheel.count_per_rot, duty_cycle_sp=cls.power)
         if wait:
             Wheels.wait_wheels()
 
@@ -126,6 +127,7 @@ class Grip:
         up, down = 0, -0.15
 
     grip_mtr = grip_pos = None
+    power = 30
 
     @classmethod
     def init(cls):
@@ -134,24 +136,24 @@ class Grip:
 
     @classmethod
     def adjust(cls):
-        cls.grip_mtr.run_timed(time_sp=1000, duty_cycle_sp=-30)
+        cls.grip_mtr.run_timed(time_sp=1000, duty_cycle_sp=-cls.power)
         Motors.wait_motor(cls.grip_mtr)
         cls.grip_mtr.reset()
-        cls.grip_mtr.run_to_abs_pos(duty_cycle_sp=30, position_sp=0.25 * cls.grip_mtr.count_per_rot)
+        cls.grip_mtr.run_to_abs_pos(duty_cycle_sp=cls.power, position_sp=0.25 * cls.grip_mtr.count_per_rot)
         Motors.wait_motor(cls.grip_mtr)
         cls.grip_mtr.reset()
         cls.grip_pos = Grip.Position.up
 
     @classmethod
     def move_up(cls, wait=True):
-        cls.grip_mtr.run_to_abs_pos(duty_cycle_sp=30, position_sp=Grip.Position.up * cls.grip_mtr.count_per_rot)
+        cls.grip_mtr.run_to_abs_pos(duty_cycle_sp=cls.power, position_sp=Grip.Position.up * cls.grip_mtr.count_per_rot)
         if wait:
             Motors.wait_motor(cls.grip_mtr)
         cls.grip_pos = Grip.Position.up
 
     @classmethod
     def move_down(cls, wait=True):
-        cls.grip_mtr.run_to_abs_pos(duty_cycle_sp=30, position_sp=Grip.Position.down * cls.grip_mtr.count_per_rot)
+        cls.grip_mtr.run_to_abs_pos(duty_cycle_sp=cls.power, position_sp=Grip.Position.down * cls.grip_mtr.count_per_rot)
         if wait:
             Motors.wait_motor(cls.grip_mtr)
         cls.grip_pos = Grip.Position.down
