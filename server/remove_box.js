@@ -1,14 +1,65 @@
-import { dbClient } from './../influxdb-compiled';
-import { mongoClient } from './../mongodb-compiled';
-import { ObjectID } from './../mongodb-compiled';
-import { clientConSock } from './../websocket-compiled';
+import { mongoClient } from './mongodb-compiled';
+import { sendCommandGateway } from './send_command_gateway-compiled';
+
+/*function removeBox(boxId, callback) {
+
+    // findone shelf
+    // remove boxId
+    // sendCommand
+    // send signal client
+
+    findShelf(boxId, function(result) {
+        console.log(result);
+    });
 
 
-function tryInsertBox(box, callback) {
 
-    box._id = new ObjectID;
-    // Get latest values from timestamp
-    let startDeviceId = 1;
+/*
+
+        removeBoxFromDb(boxId,
+            sendCommandGateway('remove', boxId,
+                sendCommandGateway('remove', boxId, ),
+                callback('Removed box ' + boxId + '.')));
+*/
+
+/*
+    function findShelf(boxId, callback) {
+
+        let doc = mongoClient.shelfCollection.findOne( {
+            boxes: { $all: [
+                { "$elemMatch" : { _id: boxId } }
+            ] }
+        });
+
+
+
+
+        callback(doc);
+
+        /*cursor2 = recipesCollection.find( {
+            ingredients: { $all: [
+                { "$elemMatch" : { name: data[0][1] } }
+            ] }
+        } );
+
+
+
+         findOne( { boxes: { $all: [{ "$elemMatch" : { _id: "5738cc9add773eec2fa15186" } }  ] }
+
+
+
+        */
+/*
+    }
+
+    function removeBoxFromDb(boxId, callback1, callback2) {
+
+    }
+
+*/
+/*
+
+
 
     getNrOfArduinos(function (aNrOfArduinos) {
         let nrOfArduinos = aNrOfArduinos;
@@ -26,6 +77,9 @@ function tryInsertBox(box, callback) {
                             console.log('temperature in shelf: ' + JSON.stringify(filteredShelvs));
                             console.log('Inserting box into database...');
                             mongoClient.shelfCollection.update({"_id": result._id}, { $push: { "boxes": box } });
+                            var x_coordinate = result.shelfLocation;
+                            var y_coordinate = result.boxes.length;
+                            postRequest('insert', box._id, x_coordinate, y_coordinate);
                             callback('Inserting box. found a shelf: ' + JSON.stringify(result));
                         }
                     })
@@ -33,7 +87,6 @@ function tryInsertBox(box, callback) {
             })
         })
     });
-
 
     function getNrOfArduinos(callback) {
         let queryNrOfArduinos = "SHOW TAG VALUES FROM Devices WITH KEY = Device_Id";
@@ -52,7 +105,8 @@ function tryInsertBox(box, callback) {
                 deviceString = deviceString + "or ";
             }
         }
-        let query = "select * from Devices  where " + deviceString + "and time > now() - 100h Order by time DESC limit 3"
+
+        let query = "select * from Devices  where " + deviceString + "and time > '2016-04-30' and time < '2016-05-16' Order by time DESC limit 3"
         dbClient.query(query, function (err, res) {
             influxResults = res[0];
             console.log(influxResults);
@@ -111,100 +165,8 @@ function tryInsertBox(box, callback) {
             callback(false);
         }
     }
-
 }
-
-export { tryInsertBox };
-
-
-
-
-/*
- var query = "select * " +
- "from Devices " +
- "where time > '2016-04-20' and time < '2016-04-21'  and Device_Id = 'd08c7b150006'";
+}
+export { removeBox };
  */
 
-
-
-/*
- var box = {
- createdBy: 'john',
- prefTemp: {
- max: 24,
- min: 17
- },
- prefLight: {
- max: 4000,
- min: 0
- },
- pendingStorage: true		// True when processed by the robot. When the robot is done, it is set to false
- }
-
- var shelf = {
- shelfLocation: 1,
- shelfCapacity: 10,
- boxes: []		// An array of the boxObjects stored on the shelf, indexed by physical coordinate location
- }
-
- select * from Devices  where Device_Id = '3' and time > now() - 1h Order by time DESC limit 1
-
-
- var user = {
- userName: 'john',
- password: 'test1'
- }
-
- */
-
-
-/*
- dbClient.query(queryNrOfArduinos, function(err, res) {
- nrOfArduinos = res[0].length;
- for(let i = 0; i < nrOfArduinos; i++) {
- query = "select * from Devices  where Device_Id = '" + deviceId + "' and time > now() - 72h Order by time DESC limit 1"
- dbClient.query(query, function(err, res) {
- influxResults.push(res[0][0]);
- if (influxResults.length === nrOfArduinos) {
- console.log(influxResults);
-
- for(let j = 0; j < influxResults.length; j++) {
- if( box.prefTemp.max > influxResults[j].temperature_celsius &&
- box.prefTemp.min < influxResults[j].temperature_celsius &&
- box.prefLight.max > influxResults[j].light_lux &&
- box.prefLight.min < influxResults[j].light_lux
- ) {
- console.log('Shelf ' + influxResults[j].Device_Id + ' is within range');
-
- mongoClient.shelfCollection.findOne({"shelfLocation": parseInt(influxResults[j].Device_Id) }, function(err, res2) {
- console.log(res2);
- if(res2.shelfCapacity > res2.boxes.length) {
- console.log('there is space!');
- mongoClient.shelfCollection.update({"_id": res2._id}, { $push: { "boxes": box } });
- insertFailed = false;
- j = influxResults.length;
- finalShelf = res2;
- } else {
- console.log('Found a good shelf, but shelf + ' + res2.shelfLocation + ' has no space!');
- }
- });
- }
- if(j === influxResults.length || j === influxResults.length-1) {
- if(insertFailed) {
- //                              clientConSock.emit('insert_failed');
- console.log('failed');
- callback(insert_failed';                 // callback(ar alltid failed. Beror formodligen pa att den inte vantar pa att
- } else {
- //                                clientConSock.emit('insert_succeeded', finalShelf);
- console.log('succeeded');
- callback(insert_succeeded';              // ...
- }
- }
- }
- }
- });
- deviceId++;
- }
- });
- }
- */

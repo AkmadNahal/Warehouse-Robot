@@ -2,47 +2,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="x-ua-compatible" content="ie=edge">
-<link rel="stylesheet" type="text/css" href="../css/stylesheet.css">
-<title>Add Box</title>
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css">
+    <script   src="https://code.jquery.com/jquery-2.2.3.min.js"   integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo="   crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../javascript/client.js"></script>
+    <title>Add Box</title>
 
 </head>
 <body>
 
 <form class="myForm">
 
-<h3 id="add"> Add Box </h3> 
- 
+    <h3 id="add"> Add Box </h3>
 
-<p>
-<label>Box Name 
-<input type="text" name="boxname" id="boxname">
-</label>
-</p>
+    <p>
+        <label>Box Name
+            <input type="text" name="boxname" id="boxname">
+        </label>
+    </p>
 
-<p>
-<label>Preferred temperature 
-<input type="number" id="max" name="max">
-<input type="number" id="min" name="min">
-<input type="checkbox" id="notemp" name="notemp"> Don't Care </label></p>
-</label>
-</p>
-
-<p>
-<label>Preferred light 
-<input type="number" name="max">
-<input type="number" name="min">
-<input type="checkbox" id="notemp" name="notemp"> Don't Care </label></p>
-</label>
-</p>
-
-
-
-<p><button id="submit">Submit</button></p>
-
+    <p>
+        <label>Preferred temperature
+            <input type="number" id="maxTemp" name="maxTemp" placeholder="Max">
+            <input type="number" id="minTemp" name="minTemp" placeholder="Min">
+            <input type="checkbox" id="notemp" name="noTemp"> Don't Care </label></p>
+    </label>
+    </p>
+    <p>
+        <label>Preferred light
+            <input type="number" id="maxLight" name="maxLight" placeholder="Max">
+            <input type="number" id="minLight" name="minLight" placeholder="Min">
+            <input type="checkbox" id="nolight" name="noLight"> Don't Care </label></p>
+    </label>
+    </p>
+    <input id="submit" type="submit" value="Add box">
 </form>
 
 </body>
