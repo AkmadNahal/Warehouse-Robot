@@ -41,17 +41,16 @@ function socketSetup() {
         });
 
         clientConSock.on('remove_box', function(boxId) {
-            removeBox(boxId, function(result) {
-                clientConSock.emit('remove_box_status', result);
-            });
+           // removeBox(boxId, function(result) {
+             //   clientConSock.emit('remove_box_status', result);
         });
 
         clientConSock.on('get_all_shelves', function() {
             // query database and get all box objects.
             // emit back a variable with all objects in an array
-            getAllBoxes(function(result){
-                console.log(result);
-                clientConSock.emit('response_get_all_shelves', result);
+            console.log('get all shelves called');
+            getAllBoxes(function(result1, result2){
+                clientConSock.emit('response_get_all_shelves', result1, result2);
             });
         });
 

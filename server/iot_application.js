@@ -22,7 +22,7 @@ const iotAppSetup = function() {
 
     appClient.on('deviceEvent', function(deviceType, deviceId, eventType, format, payload) {
 
-        console.log("Device Event from :: " + deviceType + " : " + deviceId + " of event " + eventType + " with payload : " + payload);
+        //console.log("Device Event from :: " + deviceType + " : " + deviceId + " of event " + eventType + " with payload : " + payload);
         let deviceData = (JSON.parse(payload.toString())).data;
 
         dbClient.writePoint('Devices', {

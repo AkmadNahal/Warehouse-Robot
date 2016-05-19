@@ -11,6 +11,7 @@ export const app = express();
 export const server = require('http').createServer(app);
 export const Client = require('ibmiotf');
 export const request = require('request');
+const bodyParser = require('body-parser');
 
 
 iotAppSetup();
@@ -32,6 +33,25 @@ app.get('/add_box', function(req,res) {
 
 app.get('/graphstaticdata', function(req,res) {
     res.sendFile(__dirname + '/client/graphStaticData.html');
+});
+
+app.get('/info', function(req,res) {
+    res.sendFile(__dirname + '/client/html/info.html');
+});
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.post('/commandResponse', function (req, res) {
+
+    if(commandBuffer.length == 0) {
+        console.log(req.body);
+        console.log(req.body.x);
+        console.log(req.body.y);
+        console.log(req.body.id);
+        runCommand(req.body);
+    }
+//    process.stdout.write(req.body);
 });
 
 server.listen(process.env.PORT || 5000);

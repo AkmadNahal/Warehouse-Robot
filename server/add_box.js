@@ -28,7 +28,7 @@ function tryInsertBox(box, callback) {
                             console.log('Inserting box into database...');
                             mongoClient.shelfCollection.update({"_id": result._id}, { $push: { "boxes": box } });
                             var x_coordinate = result.shelfLocation;
-                            var y_coordinate = result.boxes.length;
+                            var y_coordinate = result.boxes.length+1;
                             sendCommandGateway('insert', box._id, x_coordinate, y_coordinate);
                             callback(result, box);
                         }
@@ -56,7 +56,7 @@ function tryInsertBox(box, callback) {
             }
         }
 
-        let query = "select * from Devices  where " + deviceString + "and time > '2016-04-30' and time < '2016-05-16' Order by time DESC limit 3"
+        let query = "select * from Devices  where " + deviceString + "and time > '2016-04-30' and time < '2016-05-18' Order by time DESC limit 3"
         dbClient.query(query, function (err, res) {
             influxResults = res[0];
             console.log(influxResults);

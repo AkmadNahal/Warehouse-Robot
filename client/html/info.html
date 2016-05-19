@@ -1,29 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="../css/stylesheet.css">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<link rel="stylesheet" type="text/css" href="../css/stylesheet.css">
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script   src="https://code.jquery.com/jquery-2.2.3.min.js"   integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo="   crossorigin="anonymous"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	<script src="../javascript/shelves.js"></script>
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 	<title>Detailed Info</title>
 </head>
-<body>
-<h1><u> Detailed Info</u></h1>
-<div id="info">
-<h3>Box name: <span id="boxname"> </span></h3>
-<h3>Box ID: <span id="boxid"> </span></h3>
-<h3>Temperature interval: <span id="tempinter"> </span></h3>
-<h3>Light interval: <span id="lightinter"> </span></h3>
-<h2><u>Box location</u></h2> 
-<h3>Shelf: <span id="shelf"> </span></h3>
-<h3>Slot: <span id="slot"> </span></h3>
-<h2><u>Current</u></h2>
-<h3>Temperatue: <span id="temp"> </span></h3>
-<h3>Light: <span id="light"> </span></h3>
-</div>
-<div id="rev">
-<a href="#">
-<img src="../images/R1.png" alt="Retrieve">
-</a>
-</div>
 
+<style>
+	.axis line,
+	.axis path {
+		stroke-width: 1;
+		fill: none;
+		stroke: #333;
+		shape-rendering: crispEdges;
+	}
+</style>
+<body>
+<h1><u> View Boxes </u></h1>
+<div class="row">
+	<div class="col-sm-4 shelf1">
+		<h3 style="text-align: center;"> Shelf 1 </h3>
+		<hr>
+		<div id=shelf11>
+			<u>Slot 1</u>
+		</div>
+		<hr>
+		<div id=shelf12>
+			<u>Slot 2</u>
+		</div>
+		<hr>
+		<div id=shelf13>
+			<u>Slot 3</u>
+		</div>
+		<hr>
+		<h1><u>Graph shelf 1</u></h1>
+		<div class="col-sm-4" id="viz-wrapper1"></div>
+	</div>
+	<div class="col-sm-4 shelf2">
+		<h3 style="text-align: center;"> Shelf 2 </h3>
+		<hr>
+		<div id=shelf21>
+			<u>Slot 1</u>
+		</div>
+		<hr>
+		<div id=shelf22>
+			<u>Slot 2</u>
+		</div>
+		<hr>
+		<div id=shelf23>
+			<u>Slot 3</u>
+		</div>
+		<hr>
+		<h1><u>Graph shelf 2</u></h1>
+		<div class="col-sm-4" id="viz-wrapper2"></div>
+	</div>
+	<div class="col-sm-4 shelf3">
+		<h3 style="text-align: center;"> Shelf 3 </h3>
+		<hr>
+		<div id=shelf31>
+			<u>Slot 1</u>
+		</div>
+		<hr>
+		<div id=shelf32>
+			<u>Slot 2</u>
+		</div>
+		<hr>
+		<div id=shelf33>
+			<u>Slot 3</u>
+		</div>
+		<hr>
+		<h1><u>Graph shelf 3</u></h1>
+		<div class="col-sm-4" id="viz-wrapper3"></div>
+	</div>
+</div>
 
 </body>
 </html>
