@@ -41,10 +41,10 @@ class UltrasonicSensor:
 #
 #
 #
-class GyroSensor():
-    gyro = ev3.GyroSensor(ev3.INPUT_2); assert gyro.connected
-    gyro.mode = 'GYRO-ANG'
-
-    @classmethod
-    def get_value(cls):
-        return cls.gyro.value()
+# class GyroSensor():
+#     gyro = ev3.GyroSensor(ev3.INPUT_2); assert gyro.connected
+#     gyro.mode = 'GYRO-ANG'
+#
+#     @classmethod
+#     def get_value(cls):
+#         return cls.gyro.value()

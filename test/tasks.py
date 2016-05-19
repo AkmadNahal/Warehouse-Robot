@@ -271,6 +271,7 @@ class ControlThread(threading.Thread):
         self.command = ""
         self.running = False
         self.active = False
+        self.success = False
         self.commands = ["go-to-start", "go-to-location", "collect-box", "place-box", "insert-box", "remove-box"]
         threading.Thread.__init__(self)
 
@@ -287,12 +288,16 @@ class ControlThread(threading.Thread):
                     continue
                 if cmd[0] == "go-to-start":
                     Navigation.go_to_start()
+                    self.success = True
                 elif cmd[0] == "go-to-location":
                     Navigation.go_to_location((int(cmd[1]), int(cmd[2])))
+                    self.success = True
                 elif cmd[0] == "collect-box":
                     BoxCollector.collect_box()
+                    self.success = True
                 elif cmd[0] == "place-box":
                     BoxCollector.place_box()
+                    self.success = True
                 elif cmd[0] == "insert-box":
                     Navigation.go_to_location((0, 0))
                     ret = BoxCollector.collect_box()
@@ -300,12 +305,14 @@ class ControlThread(threading.Thread):
                         Navigation.go_to_location((int(cmd[1]), int(cmd[2])))
                         BoxCollector.place_box()
                         Navigation.go_to_location((0, 0))
+                    self.success = ret == 0
                 elif cmd[0] == "remove-box":
                     Navigation.go_to_location((int(cmd[1]), int(cmd[2])))
                     ret = BoxCollector.collect_box()
                     Navigation.go_to_location((0, 0))
                     if ret == 0:
                         BoxCollector.place_box()
+                    self.success = ret == 0
                 self.command = ""
             time.sleep(0.1)
         self.running = False
