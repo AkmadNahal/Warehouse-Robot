@@ -18,8 +18,13 @@ class Motors:
 
     @staticmethod
     def wait_motor(motor):
-        while Motors.motor_running(motor):
-            pass
+        ctr = 0
+        while ctr < 2:
+            if not Motors.motor_running(motor):
+                ctr += 1
+            else:
+                ctr = 0
+
 
 
 #

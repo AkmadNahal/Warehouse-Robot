@@ -21,6 +21,8 @@ class Navigation:
 
     tag_ctr = 0
 
+    gts_power = 60
+
     @classmethod
     def init(cls, kp=0.65, kd=1, ki=0.02, direction=1, power=40):
         cls.kp = kp
@@ -68,8 +70,10 @@ class Navigation:
 
     @classmethod
     def go_to_start(cls):
+        cls.set_power(cls.gts_power)
         cls.follow_line_until_wtag()
         cls.current_location = (0, 0)
+        cls.reset_power()
 
     @classmethod
     def tag_counter(cls):
