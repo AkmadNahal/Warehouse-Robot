@@ -4,13 +4,40 @@ import json
 import time
 from tasks import *
 
+#
+#
+#
+#
+
 class RobotControl(object):
+    """
+
+
+    Keyword arguments:
+    object -- The robot object to be controlled
+    """
     def __init__(self):
+        """
+        Initiates the class itself.
+
+        Keyword arguments:
+        self -- The class itself.
+        """
         self.rrc = ControlThread()
         self.rrc.start()
         self.rrc.command = 'go-to-start'
 
     def send_command(self, command, x, y, ID):
+        """
+        Sends a command to the robot.
+
+        Keyword arguments:
+        self -- The object to get the command
+        command -- The command to be run on the object
+        x -- The X-coordinate
+        y -- The Y-coordinate
+        ID --
+        """
         cmd = ""
         response = {}
         cmd_f = True

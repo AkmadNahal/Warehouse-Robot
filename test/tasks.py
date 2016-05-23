@@ -5,11 +5,12 @@ from motors import *
 from sensors import *
 
 
-#
-#
-#
-#
+
 class Navigation:
+    """
+    THis class defines the different functions used to navigate the robot in the environment.
+
+    """
 
     kp = kd = ki = direction = def_power = None
     min_ref = max_ref = target = None
@@ -23,8 +24,15 @@ class Navigation:
 
     gts_power = 60
 
+
     @classmethod
     def init(cls, kp=0.65, kd=1, ki=0.02, direction=1, power=40):
+        """
+        Initiates the navigation class.
+
+        Keyword arguments:
+        motor -- The motor to run the command on
+        """
         cls.kp = kp
         cls.kd = kd
         cls.ki = ki
@@ -37,6 +45,12 @@ class Navigation:
 
     @classmethod
     def calibrate(cls):
+        """
+        Calibrate the color sensor to get the values surrounding the robot.
+
+        Keyword arguments:
+        cls -- The class
+        """
         min = 255
         max = 0
 
@@ -57,8 +71,17 @@ class Navigation:
         Wheels.turn_right_rel(0.52)
         cls.min_ref, cls.max_ref, cls.target = min, max, max / 2
 
+
     @classmethod
     def correct_path(cls, last_error, integral):
+        """
+
+
+        Keyword arguments:
+        cls -- The class
+        last_error --
+        integral --
+        """
         refRead = ColorSensors.get_line_value()
         error = cls.target - (100 * (refRead - cls.min_ref) / (cls.max_ref - cls.min_ref))
         derivative = error - last_error
@@ -68,15 +91,29 @@ class Navigation:
         Wheels.set_sp(*Wheels.steering(course, Wheels.power))
         return last_error, integral
 
+
     @classmethod
     def go_to_start(cls):
+        """
+        Moves the robot to the starting position
+
+        Keyword arguments:
+        cls -- The class
+        """
         cls.set_power(cls.gts_power)
         cls.follow_line_until_wtag()
         cls.current_location = (0, 0)
         cls.reset_power()
 
+
     @classmethod
     def tag_counter(cls):
+        """
+        Counts the amount of tags
+
+        Keyword arguments:
+        cls -- The class
+        """
         cls.tag_ctr = 0
         cls.ctr_running = True
         while cls.ctr_running:
@@ -86,8 +123,16 @@ class Navigation:
                     time.sleep(0.2)
             time.sleep(0.01)
 
+
     @classmethod
     def follow_line_until(cls, n_tags):
+        """
+        Moves the robot until a certain condition has been met.
+
+        Keyword arguments:
+        cls -- The class
+        n_tags -- Integer values. The robot will move and count the tags it passes until it has counted to this specific value.
+        """
         Wheels.start()
         last_error = integral = 0
         cls.tag_ctr = 0
@@ -100,8 +145,15 @@ class Navigation:
         Wheels.stop()
         cls.use_tag_ctr = cls.running = False
 
+
     @classmethod
     def follow_line_until_wtag(cls):
+        """
+        Moves the robot until it finds a white tag.
+
+        Keyword arguments:
+        cls -- The class
+        """
         Wheels.start()
         last_error = integral = 0
         cls.running = True
@@ -114,6 +166,12 @@ class Navigation:
         cls.running = False
 
     def follow_line_forever(cls):
+        """
+        Make the robot follow a line until its been told to stop by another function.
+
+        Keyword arguments:
+        cls -- The class
+        """
         Wheels.start()
         last_error = integral = 0
         cls.running = True
@@ -123,8 +181,16 @@ class Navigation:
         Wheels.stop()
         cls.running = False
 
+
     @classmethod
     def go_to_location(cls, loc):
+        """
+        Moves the robot to a specific location.
+
+        Keyword arguments:
+        cls -- The class
+        loc -- Integer tuple with x and y coordinate.
+        """
 
         if cls.current_location is None:
             return 2
@@ -165,8 +231,17 @@ class Navigation:
         cls.current_location = loc
         return 0
 
+
     @classmethod
     def turn_right_until(cls, n_tags, direction=1):
+        """
+        Turns the robot right until it has counted a specific amount of tags.
+
+        Keyword arguments:
+        cls -- The class
+        n_tags -- Integer value. The amount of tags to be counted by the robot.
+        direction -- Integer value. The direction the robot will turn. This integer will be used by other functions to make the robot turn right.
+        """
         Wheels.turn_right_forever(direction)
         time.sleep(0.3)
         cls.tag_ctr = 0
@@ -176,8 +251,17 @@ class Navigation:
         Wheels.stop()
         cls.running = cls.use_tag_ctr = False
 
+
     @classmethod
     def turn_left_until(cls, n_tags, direction=1):
+        """
+        Turns the robot left until it has counted a specific amount of tags.
+
+        Keyword arguments:
+        cls -- The class
+        n_tags -- Integer value. The amount of tags to be counted by the robot.
+        direction -- Integer value. The direction the robot will turn. This integer will be used by other functions to make the robot turn left.
+        """
         Wheels.turn_left_forever(direction)
         time.sleep(0.3)
         cls.tag_ctr = 0
@@ -187,8 +271,17 @@ class Navigation:
         Wheels.stop()
         cls.running = cls.use_tag_ctr = False
 
+
     @classmethod
     def move_until(cls, n_tags, direction=1):
+        """
+        Move the robot until a certain amount of tags has been counted.
+
+        Keyword arguments:
+        cls -- The class
+        n_tags -- The amount of tags to be counted.
+        direction -- The direction the robot will travel.
+        """
         Wheels.start()
         Wheels.set_sp(direction*Wheels.power, direction*Wheels.power)
         time.sleep(0.3)
@@ -199,30 +292,60 @@ class Navigation:
         Wheels.stop()
         cls.running = cls.use_tag_ctr = False
 
+
     @classmethod
     def set_power(cls, power):
+        """
+        Set the power level of the wheels.
+
+        Keyword arguments:
+        cls -- The class
+        power -- Integer. The power level of the wheels.
+        """
         Wheels.power = power
+
 
     @classmethod
     def reset_power(cls):
+        """
+        Sets the power level to the default value.
+
+        Keyword arguments:
+        cls -- The class
+        """
         Wheels.power = cls.def_power
+
 
     @classmethod
     def stop(cls):
+        """
+        Stops the motors and sets the running status to False.
+
+        Keyword arguments:
+        cls -- The class
+        """
         Wheels.stop()
         cls.running = cls.ctr_running = False
 
 
-#
-#
-#
-#
+
 class BoxCollector:
+    """
+    Defines the box collector class
+
+    """
 
     power = 30
 
+
     @classmethod
     def collect_box(cls):
+        """
+        Collects a box
+
+        Keyword arguments:
+        cls -- The class
+        """
         Navigation.set_power(cls.power)
         if Navigation.current_location == (0, 0):
             if 5 < UltrasonicSensor.get_dist() / 10 < 40:
@@ -248,8 +371,15 @@ class BoxCollector:
         Navigation.reset_power()
         return 0
 
+
     @classmethod
     def place_box(cls):
+        """
+        Places a box.
+
+        Keyword arguments:
+        cls -- The class
+        """
         Navigation.set_power(cls.power)
         if Navigation.current_location == (0, 0):
             Wheels.move_rel(0.1)
@@ -266,12 +396,21 @@ class BoxCollector:
         Navigation.reset_power()
 
 
-#
-#
-#
-#
+
 class ControlThread(threading.Thread):
+    """
+    Defines the control threads used by the robot.
+
+    Keyword arguments:
+    threading.Thread -- The threads to be used.
+    """
     def __init__(self):
+        """
+        Initiates the threading class and the commands that can be used by the robot.
+
+        Keyword arguments:
+        self -- The object to be initiated.
+        """
         self.command = ""
         self.running = False
         self.active = False
@@ -280,6 +419,12 @@ class ControlThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        """
+        Starts the threads.
+
+        Keyword arguments:
+        self -- The threads to be run.
+        """
         Navigation.init()
         Grip.init()
         while len(filter(lambda x: 'init' in x.getName(), threading.enumerate())) > 0:
@@ -322,5 +467,11 @@ class ControlThread(threading.Thread):
         self.running = False
 
     def stop(self):
+        """
+        Sets the state of the motor to "running" and returns that value.
+
+        Keyword arguments:
+        motor -- The motor to run the command on
+        """
         self.running = False
         Navigation.stop()
