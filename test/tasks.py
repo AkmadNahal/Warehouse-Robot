@@ -8,7 +8,7 @@ from sensors import *
 
 class Navigation:
     """
-    THis class defines the different functions used to navigate the robot in the environment.
+    This class defines the different functions used to navigate the robot in the environment.
 
     """
 
