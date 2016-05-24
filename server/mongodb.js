@@ -24,6 +24,9 @@ function mongoDbSetup() {
             console.log("Connected to database...");
             mongoClient.userCollection = db.collection('users');
             mongoClient.shelfCollection = db.collection('shelves');
+            //mongoClient.shelfCollection.insert(shelf);
+            //mongoClient.shelfCollection.insert(shelf1);
+            //mongoClient.shelfCollection.insert(shelf2);
         };
     });
 }

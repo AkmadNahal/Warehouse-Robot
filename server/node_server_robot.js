@@ -5,8 +5,8 @@ export const request = require('request');
 const bodyParser = require('body-parser');
 const zerorpc = require('zerorpc');
 
-var client = new zerorpc.Client({timeout:60, heartbeatInterval: 60000 });
-client.connect("tcp://192.168.43.138:4242");
+var client = new zerorpc.Client();
+client.connect("tcp://127.0.0.1:4242");
 
 let commandBuffer = [];
 

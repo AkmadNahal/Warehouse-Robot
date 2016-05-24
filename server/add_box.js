@@ -22,9 +22,6 @@ function tryInsertBox(box, callback) {
                             console.log('failed to find a shelf');
                             callback('Failed to find a shelf');
                         } else {
-                            console.log('the box: ' + JSON.stringify(box));
-                            console.log('found a shelf: ' + JSON.stringify(result));
-                            console.log('temperature in shelf: ' + JSON.stringify(filteredShelvs));
                             console.log('Inserting box into database...');
                             mongoClient.shelfCollection.update({"_id": result._id}, { $push: { "boxes": box } });
                             var x_coordinate = result.shelfLocation;
@@ -59,7 +56,6 @@ function tryInsertBox(box, callback) {
         let query = "select * from Devices  where " + deviceString + "and time > '2016-04-30' and time < '2016-05-18' Order by time DESC limit 3"
         dbClient.query(query, function (err, res) {
             influxResults = res[0];
-            console.log(influxResults);
             callback(influxResults);
         });
     }
@@ -67,6 +63,8 @@ function tryInsertBox(box, callback) {
 
     function findMatchingShelf(box, influxLatestValues, callback) {
         let filtredShelves = [];
+
+/*
         for (let j = 0; j < influxLatestValues.length; j++) {
             if (box.prefTemp.max > influxLatestValues[j].temperature_celsius &&
                 box.prefTemp.min < influxLatestValues[j].temperature_celsius &&
@@ -76,12 +74,21 @@ function tryInsertBox(box, callback) {
                 filtredShelves.push(influxLatestValues[j]);
             }
         }
-        callback(filtredShelves);
+       */
+
+            var filtered = influxLatestValues.filter((sensorValue) =>
+            box.prefTemp.max > sensorValue.temperature_celsius && box.prefTemp.min < sensorValue.temperature_celsius &&
+            box.prefLight.max > sensorValue.light_lux &&
+            box.prefLight.min < sensorValue.light_lux
+        )
+
+        callback(filtered);
     }
+
 
     function getShelfsMongo(callback) {
         let shelfArray = [];
-        let cursor = mongoClient.shelfCollection.find({});
+        let cursor = mongoClient.shelfCollection.find();
         cursor.each(function (err, doc) {
             if (err) {
                 console.log(err);
@@ -98,6 +105,26 @@ function tryInsertBox(box, callback) {
     function findFreeShelf(filteredShelfsArray, mongoShelfArray, callback) {
         let foundShelf = false;
         let theShelf = [];
+
+
+/*
+
+        for(let sensorValue of filteredShelfsArray) {
+            mongoShelfArray = mongoShelfArray.filter((shelf) =>
+            shelf.shelfLocation == sensorValue.Device_Id &&
+            shelf.boxes.length < shelf.shelfCapacity
+            )
+        }
+
+        if(mongoShelfArray.length > 0) {
+            callback(mongoShelfArray[0])
+        } else {
+            callback(false);
+        }
+    }
+*/
+
+
         for (let i = 0; i < filteredShelfsArray.length; i++) {
             for (let j = 0; j < mongoShelfArray.length; j++) {
                 if (
