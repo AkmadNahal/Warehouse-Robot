@@ -2,13 +2,15 @@
 import zerorpc
 import json
 import time
-from tasks import *
+from robot import *
+import threading
+
+
 
 #
 #
 #
 #
-
 class RobotControl(object):
     """
 
@@ -66,11 +68,29 @@ class RobotControl(object):
         response["status"] = self.rrc.success and cmd_f
         return "".join(json.dumps(response))
 
-rc = RobotControl()
-s = zerorpc.Server(rc)
-s.bind("tcp://0.0.0.0:4242")
-s.run()
-rc.rrc.stop()
+    def stop(self):
+        self.rrc.stop()
+
+
+#
+#
+#
+#
+class ZPC():
+    def __init__(self):
+        self.waiting = False
+        self.rc = RobotControl()
+        self.zpc = zerorpc.Server(self.rc)
+        self.zpc.bind("tcp://0.0.0.0:4242")
+
+    def start(self):
+        threading.Thread(target=self.zpc.run, name='zpc-ctrl')
+
+    def stop(self):
+        self.rc.stop()
+        self.zpc.stop()
+
+
 
 
 
