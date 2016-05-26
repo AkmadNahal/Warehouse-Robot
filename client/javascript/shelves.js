@@ -3,7 +3,6 @@ $(document).ready(function() {
     const clientSocket = io.connect('');
     clientSocket.emit('get_all_shelves');
     clientSocket.on('response_get_all_shelves', (shelfArray, data) => {
-        console.log(shelfArray);
         let shelfId = shelfArray.shelfLocation;
         let domBoxArray = $('.shelf' + shelfId + '> .shelf-slot');
         for(let i = 0; i < shelfArray.boxes.length; i++) {
@@ -21,24 +20,20 @@ $(document).ready(function() {
 
             if(shelfArray.boxes[i].pendingStorage) {
                 $(domBoxArray[i]).append (
-                '<p style="display:inline-block; color: red;"><strong>Pending storage:</strong> ' + shelfArray.boxes[i].pendingStorage + '</p>'
+                    '<p class="pendingStorage" style="display:inline-block; color: red;"><strong>Box being placed by robot...</strong></p>'
                 )
             } else {
                 $(domBoxArray[i]).append (
-                    '<p style="display:inline-block; color: green;"><strong>Pending storage:</strong> ' + shelfArray.boxes[i].pendingStorage + '</p>'
+                    '<p class="pendingStorage" style="display:inline-block; color: green;"><strong>Box in shelf!</strong></p>'
                 );
-                $(domBoxArray[i]).append("<button type='button' id='" + shelfArray.boxes[i]._id + "' class='btn btn-danger pull-right'>Retrive box</button>").on('click', (event) => {
-                    let boxToBeRemoves = event.target.id;
-                    console.log(event.target.id);
-                    clientSocket.emit('remove_box', (boxToBeRemoves));
+                $(domBoxArray[i]).append("<button type='button' id='" + shelfArray.boxes[i]._id + "' class='btn btn-danger pull-right'>Retrive box</button>").on('click', (event)=> {
+                    pendingRemove(event);
                 });
             }
 
 
             $(domBoxArray[i]).prop('id', shelfArray.boxes[i]._id);
         }
-
-
 
         for(let j = shelfArray.boxes.length; j < 3 ; j++) {
             $(domBoxArray[j]).append('<p><strong>EMPTY</strong></p>');
@@ -49,9 +44,71 @@ $(document).ready(function() {
     });
 
 
-    clientSocket.on('box_update', function(boxId) {
-        $('.boxUpdateAlert').show();
-        window.location = 'info2';
+    function changePendingStorage(boxId) {
+        $('#' + boxId).find('.pendingStorage').fadeOut(500).html('<strong>Box in shelf!</strong>').css('color', 'green').parent()
+            .append("<button type='button' id='" + boxId + "' class='btn btn-danger pull-right'>Retrive box</button>").on('click', (event)=> {
+            pendingRemove(event);
+        }).find('.pendingStorage').fadeIn(500);
+    }
+
+    function removeBox(boxId) {
+        $('#' + boxId+ '> br').fadeOut(500).remove();
+        $('#' + boxId+ '> p').fadeOut(500).remove();
+        $('#' + boxId+ '> button').fadeOut(500).remove();
+        $('#' + boxId).append('<p><strong>EMPTY</strong></p>').css('color', 'black').hide().fadeIn(500);
+    }
+
+    function pendingRemove(event) {
+        let boxId = event.target.id;
+        $('#' + boxId+ '> br').fadeOut(500).remove();
+        $('#' + boxId+ '> p').fadeOut(500).remove();
+        $('#' + boxId+ '> button').fadeOut(500).remove();
+        $('#' + boxId).append('<p><strong>BOX IS BEING REMOVED FROM STORAGE, LOADING...</strong></p>').css('color', 'green').hide().fadeIn(500);
+        clientSocket.emit('remove_box', (boxId));
+    }
+
+    function showMove(id) {
+        $('.moveAlert').show().hide().slideDown(500);
+        setTimeout(() => { $('.moveAlert').slideUp(500); }, 6000);
+    }
+
+    clientSocket.on('robot_status_update', (command, id) => {
+
+        switch (command) {
+
+            case 'insert':
+                changePendingStorage(id);
+                break;
+
+            case 'remove':
+                removeBox(id);
+                break;
+
+            case 'move':
+                showMove(id);
+        }
+
+    });
+
+    clientSocket.on('new_sensor_value', function(deviceData, deviceId) {
+        let temperature = deviceData.temperature_celsius;
+        let light = deviceData.light_lux;
+        let shelf = deviceId;
+        $('#temp_shelf_'+ deviceId).fadeOut(50).fadeIn(300).html(deviceData.temperature_celsius + ' °C');
+        $('#temp_shelf_'+ deviceId).siblings('h6').html(new Date);
+
+    });
+
+    $('.move_command').submit(() => {
+        event.preventDefault();
+        var $inputs = $('.move_command').find('.form-group').first().find('input')
+        var coordinates = {};
+        var id = Date.now();
+        $inputs.each(function() {
+            debugger;
+            coordinates[this.id] = this.value;
+        });
+        clientSocket.emit('move_command', coordinates, id);
     });
 
 
@@ -59,45 +116,83 @@ $(document).ready(function() {
         $("#myAlert").alert("close");
     });
 
+    $('.myForm').submit(function() {
+        event.preventDefault();
+        var $inputs = $('.myForm :input');
+        console.log($inputs);
 
-    var boxid = '';
-//    clientSocket.emit('remove_box');
+        var values = {};
+        $inputs.each(function() {
+            values[this.name] = $(this).val();
+        });
 
-    clientSocket.on('remove_box_status', function(box, status) {
-        console.log(box);
-        if (status == true) {
-            $('.addBoxAlert').show();
-            setTimeout(function() {
-                window.location = 'info2';
-            }, 1000);
-        } else {
-            alert("something is fucked");
+        var noTemp = $('#noTemp').prop('checked');
+        var noLight = $('#noLight').prop('checked');
+
+        if(noTemp) {
+            values.minTemp = -200;
+            values.maxTemp = 1000;
         }
+
+        if(noLight) {
+            values.minLight = 0;
+            values.maxLight = 10000;
+        }
+
+
+        var box = {
+            createdBy: 'john',
+            boxName: values.boxname,
+            prefTemp: {
+                min: values.minTemp,
+                max: values.maxTemp
+            },
+            prefLight: {
+                min: values.minLight,
+                max: values.maxLight
+            },
+            pendingStorage: true		// True when processed by the robot. When the robot is done, it is set to false
+        }
+
+
+        clientSocket.emit('add_box', (box));
+        $('.modal-footer').find('button').trigger('click')
+        $('.boxUpdateAlert').show().hide().delay(500).slideDown(500);
+
+        setTimeout(() => {
+            $('.boxUpdateAlert').slideUp(500);
+        }, 6000);
+
     });
 
-    var x = 2;
-    var y = 1;
-    clientSocket.emit("move", (x,y));
-    clientSocket.on("response_move", function(movestatus) {
-        if (movestatus == true){
-            alert("The robot has been succesfully moved");
-        }
-        else {
-            alert("The move is not acceptable");
-        }
 
-    });
+    clientSocket.on('add_box_status', function(shelf, box) {
+
+        let domBoxArray = $('.shelf' + shelf.shelfLocation + '> .shelf-slot');
+
+        $(domBoxArray[shelf.boxes.length]).prop('id', box._id);
+
+        $('#' + box._id + '> p').remove();
+        $(domBoxArray[shelf.boxes.length]).append('<p><strong>Name: </strong>' + box.boxName + '</p>'
+            + '<p style="display:inline-block;"><strong>ID:</strong> ' + box._id + '</p>'
+            + '<br>'
+            + '<p style="display:inline-block; margin-right: 1%;"><strong>Maximum temperature:</strong> ' + box.prefTemp.max + '</p>'
+            + '<p style="display:inline-block;"><strong>Minimum temperature:</strong> ' + box.prefTemp.min + '</p>'
+            + '<br>'
+            + '<p style="display:inline-block;  margin-right: 1%;"><strong>Maximum light:</strong> ' + box.prefLight.max + '</p>'
+            + '<p style="display:inline-block;"><strong>Minimum light:</strong> ' + box.prefLight.min + '</p>'
+            + '<br>'
+            + '<p class="pendingStorage" style="display:inline-block; color: red;"><strong>Box being placed by robot...</strong></p>'
+        );
 
 
-
-
-    function paintGraph(target,data) {
+        function paintGraph(target,data) {
 
         var data = data[0];
 
         var height = 300,
             width = 250,
-            padding = 25;
+            padding = 40;
 
 //  Select the div where the new SVG will be appended.
 //  Set the height and width
@@ -174,7 +269,7 @@ $(document).ready(function() {
 //  in the SVG pixel space.
 
         xScale.domain([xMin, xMax]);
-        yScale.domain([5, 30]);
+        yScale.domain([0, 30]);
 
 //  Now we want to add the x and y axis to the svg. We do that by first appending a new
 //  g-element, and adding an x axis and y axis class to it. We want to move the x-axis down
@@ -247,63 +342,8 @@ $(document).ready(function() {
         });
     }
 
-    clientSocket.on('res_data', function (data) {
-        console.log(data);
-    });
 
 
-
-    $('.myForm').submit(function() {
-        event.preventDefault();
-        var $inputs = $('.myForm :input');
-        console.log($inputs);
-
-        var values = {};
-        $inputs.each(function() {
-            values[this.name] = $(this).val();
-        });
-
-        var noTemp = $('#noTemp').prop('checked');
-        var noLight = $('#noLight').prop('checked');
-
-        if(noTemp) {
-            values.minTemp = -200;
-            values.maxTemp = 1000;
-        }
-
-        if(noLight) {
-            values.minLight = 0;
-            values.maxLight = 10000;
-        }
-
-
-        var box = {
-            createdBy: 'john',
-            boxName: values.boxname,
-            prefTemp: {
-                min: values.minTemp,
-                max: values.maxTemp
-            },
-            prefLight: {
-                min: values.minLight,
-                max: values.maxLight
-            },
-            pendingStorage: true		// True when processed by the robot. When the robot is done, it is set to false
-        }
-
-
-        clientSocket.emit('add_box', (box));
-
-        window.location = 'info2';
-
-    });
-
-
-    clientSocket.on('add_box_status', function(shelf, box) {
-        console.log('box', box);
-        console.log('shelf', shelf);
-        console.log('shelf_x', shelf.shelfLocation);
-        console.log('shelf_y', shelf.boxes.length);
     });
 
     //Check to see if the window is top if not then display button
@@ -320,7 +360,7 @@ $(document).ready(function() {
         $('html, body').animate({scrollTop : 0},800);
         return false;
     });
-    
+
 
 
 });

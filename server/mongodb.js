@@ -1,6 +1,7 @@
 var mongoClient = require('mongodb').MongoClient,
     ObjectID = require('mongodb').ObjectID;
 
+
 function mongoDbSetup() {
     var mongoUrl = 'mongodb://localhost:27017/test';
     var shelf = {

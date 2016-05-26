@@ -1,6 +1,5 @@
 import { Client } from '../app-compiled';
 
-
 function iotDeviceSetup(){
 
     const config = {

@@ -1,8 +1,7 @@
 import { dbClient } from './influxdb-compiled';
 import { mongoClient } from './mongodb-compiled';
 import { ObjectID } from './mongodb-compiled';
-import { clientConSock } from './websocket-compiled';
-import { sendCommandGateway } from './send_command_gateway-compiled';
+import {sendCommandServer} from "./send_command_server-compiled";
 
 
 function tryInsertBox(box, callback) {
@@ -26,7 +25,7 @@ function tryInsertBox(box, callback) {
                             mongoClient.shelfCollection.update({"_id": result._id}, { $push: { "boxes": box } });
                             var x_coordinate = result.shelfLocation;
                             var y_coordinate = result.boxes.length+1;
-                            sendCommandGateway('insert', box._id, x_coordinate, y_coordinate);
+                            sendCommandServer(false,'insert', box._id, x_coordinate, y_coordinate);
                             callback(result, box);
                         }
                     })

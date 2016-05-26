@@ -1,18 +1,17 @@
-import { request } from '../app-compiled';
+const request = require('request');
 
-export function sendCommandServer(command, id, x, y) {
+export function sendCommandServer(isGateWay, command, id, x, y) {
 
     const fs = require('fs');
 
-    var url = "http://localhost:5000/commandResponse",
-        body = {
+    var url = isGateWay ? "http://localhost:5000/commandResponse" : "http://localhost:8002/command";
+
+    var body = {
             command,
             x,
             y,
             id,
         };
-
-    console.log('prover');
 
     request.post(
         {

@@ -3,6 +3,7 @@ function influxDbSetup() {
 
     const influx = require('influx');
 
+    
     dbClient = influx({
 
         host: 'localhost',

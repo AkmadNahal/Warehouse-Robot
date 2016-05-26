@@ -1,14 +1,15 @@
-export const express = require('express');
-export const app = express();
-export const server = require('http').createServer(app);
-export const request = require('request');
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app);
 const bodyParser = require('body-parser');
 const zerorpc = require('zerorpc');
+import {sendCommandServer} from "./send_command_server-compiled";
 
-var client = new zerorpc.Client();
+var client = new zerorpc.Client({timeout:120, heartbeatInterval:500000000});
 client.connect("tcp://127.0.0.1:4242");
 
 let commandBuffer = [];
+
 
 //app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -34,19 +35,22 @@ app.post('/command', function (req, res) {
 
 function runCommand(currentCommand) {
     client.invoke("send_command", currentCommand.command, currentCommand.x, currentCommand.y, currentCommand.id, function(error, res, more) {
-        console.log(error);
-        console.log(more);
+
+        res = JSON.parse(res);
         console.log(res);
+        console.log(res.command);
+        console.log(res.ID);
+
         if(commandBuffer != 0 ) {
             let nextCommand = commandBuffer.shift;
             runCommand(nextCommand);
-            sendCommandGateway(res);
+            sendCommandServer(true,res.command, res.ID,0,0);
         } else {
-            //sendCommandGateway(res);
+            sendCommandServer(true,res.command, res.ID,0,0);
             console.log('no more commands!');
         }
     });
-}
+}   
 
 
 

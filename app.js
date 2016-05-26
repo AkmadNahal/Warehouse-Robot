@@ -1,9 +1,9 @@
 import { iotAppSetup } from './server/iot_application-compiled';
 import { socketSetup } from './server/websocket-compiled';
 import { influxDbSetup } from './server/influxdb-compiled';
-import { sendCommandGateway } from './server/send_command_gateway-compiled';
 import { iotDeviceSetup } from './server/iot_devices-compiled';
 import{ mongoDbSetup } from './server/mongodb-compiled';
+import {commandRouter} from "./server/command_router-compiled";
 //import {removeBox} from "./server/remove_box";
 
 export const express = require('express');
@@ -24,7 +24,7 @@ mongoDbSetup();
 app.use(express.static(__dirname + '/client'));
 
 app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/client/app.html');
+    res.sendFile(__dirname + '/client/html/info2.html');
 });
 
 app.get('/add_box', function(req,res) {
@@ -43,9 +43,6 @@ app.get('/info2', function(req,res) {
     res.sendFile(__dirname + '/client/html/info2.html');
 });
 
-http://localhost:5000/images/scroll-to-top
-
-
 app.get('/images/scroll-to-top', function(req,res) {
         res.sendFile(__dirname + '/client/images/scroll-to-top.png');
     });
@@ -55,14 +52,12 @@ app.use(bodyParser.json());
 
 app.post('/commandResponse', function (req, res) {
 
-    if(commandBuffer.length == 0) {
+        console.log('Command Response:');
         console.log(req.body);
         console.log(req.body.x);
         console.log(req.body.y);
         console.log(req.body.id);
-        runCommand(req.body);
-    }
-//    process.stdout.write(req.body);
+        commandRouter(req.body);
 });
 
 server.listen(process.env.PORT || 5000);

@@ -1,5 +1,7 @@
 import { Client } from '../app-compiled';
 import { dbClient } from './influxdb-compiled';
+import { sendSensorUpdateClient } from './websocket-compiled';
+import {compareTempToBoxes} from "./compare_temp_boxes-compiled";
 
 let appClient;
 const iotAppSetup = function() {
@@ -22,7 +24,8 @@ const iotAppSetup = function() {
 
     appClient.on('deviceEvent', function(deviceType, deviceId, eventType, format, payload) {
 
-        //console.log("Device Event from :: " + deviceType + " : " + deviceId + " of event " + eventType + " with payload : " + payload);
+        //
+        // console.log("Device Event from :: " + deviceType + " : " + deviceId + " of event " + eventType + " with payload : " + payload);
         let deviceData = (JSON.parse(payload.toString())).data;
 
         dbClient.writePoint('Devices', {
@@ -30,6 +33,9 @@ const iotAppSetup = function() {
             light_lux: deviceData.light_lux
         }, {Device_Id: deviceId}, function (err, response) {
         });
+
+        sendSensorUpdateClient('new_sensor_value', deviceData, deviceId);
+        compareTempToBoxes(deviceData, deviceId);
     });
     
 // Error handling application
@@ -41,3 +47,5 @@ const iotAppSetup = function() {
 }
 
 export { iotAppSetup, appClient };
+
+// xsource xdest, ysource ydest,
