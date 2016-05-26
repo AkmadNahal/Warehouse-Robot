@@ -11,3 +11,6 @@ echo $ip > $dir/robot_local_ip.txt
 
 # Start the robot control task
 python $dir/robot_control.py
+
+# Remove the IP file
+rm $dir/robot_local_ip.txt
