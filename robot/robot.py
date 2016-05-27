@@ -133,6 +133,7 @@ class Navigation:
         cls -- The class
         n_tags -- Integer values. The robot will move and count the tags it passes until it has counted to this specific value.
         """
+        Wheels.move_rel(0.1)
         Wheels.start()
         last_error = integral = 0
         cls.tag_ctr = 0
@@ -415,7 +416,7 @@ class ControlThread(threading.Thread):
         self.running = False
         self.active = False
         self.success = False
-        self.commands = ["go-to-start", "go-to-location", "collect-box", "place-box", "insert-box", "remove-box"]
+        self.commands = ["go-to-start", "go-to-location", "collect-box", "place-box", "insert-box", "remove-box", "relocate-box"]
         threading.Thread.__init__(self)
 
     def run(self):
@@ -433,7 +434,9 @@ class ControlThread(threading.Thread):
         while self.running:
             if self.command != "":
                 cmd = self.command.strip().split()
-                if cmd[0] not in self.commands or len(cmd) > 1 and (not cmd[1].isdigit() or not cmd[2].isdigit()):
+                if cmd[0] not in self.commands or \
+                            len(cmd) > 1 and (not cmd[1].isdigit() or not cmd[2].isdigit()) or \
+                            len(cmd) > 3 and (not cmd[3].isdigit() or not cmd[4].isdigit()):
                     continue
                 if cmd[0] == "go-to-start":
                     Navigation.go_to_start()
@@ -461,6 +464,14 @@ class ControlThread(threading.Thread):
                     Navigation.go_to_location((0, 0))
                     if ret == 0:
                         BoxCollector.place_box()
+                    self.success = ret == 0
+                elif cmd[0] == "relocate-box":
+                    Navigation.go_to_location((int(cmd[1]), int(cmd[3])))
+                    ret = BoxCollector.collect_box()
+                    if ret == 0:
+                        Navigation.go_to_location((int(cmd[2]), int(cmd[4])))
+                        BoxCollector.place_box()
+                    Navigation.go_to_location((0, 0))
                     self.success = ret == 0
                 self.command = ""
             time.sleep(0.1)

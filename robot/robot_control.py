@@ -50,6 +50,8 @@ class RobotControl(object):
             cmd = "remove-box"
         elif command == "move":
             cmd = "go-to-location"
+        elif command == "relocate":
+            command = "relocate-box"
         else:
             cmd_f = False
 
