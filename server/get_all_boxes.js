@@ -30,3 +30,5 @@ function getInfluxData(device, callback) {
  }
 
 export {getAllBoxes}
+
+//select * from Devices where time > '2016-05-15' and Device_Id = '1' 'limit 10';

@@ -38,9 +38,9 @@ function iotDeviceSetup(){
 
 
     function publisher() {
-        deviceClient.publish("event","json",'{"data" : { "temperature_celsius" : 15, "light_lux" : 300 }}');
-        deviceClient_2.publish("event","json",'{"data" : { "temperature_celsius" : 25, "light_lux" : 100 }}');
-        deviceClient_3.publish("event","json",'{"data" : { "temperature_celsius" : 5, "light_lux" : 600 }}');
+        deviceClient.publish("event","json",'{"data" : { "temperature_celsius" : 0, "light_lux" : 300 }}');
+        deviceClient_2.publish("event","json",'{"data" : { "temperature_celsius" : 10, "light_lux" : 100 }}');
+        deviceClient_3.publish("event","json",'{"data" : { "temperature_celsius" : 20, "light_lux" : 600 }}');
     }
 
     deviceClient_3.on('connect', function () {

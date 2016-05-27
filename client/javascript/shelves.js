@@ -1,48 +1,6 @@
 $(document).ready(function() {
 
     const clientSocket = io.connect('');
-    clientSocket.emit('get_all_shelves');
-    clientSocket.on('response_get_all_shelves', (shelfArray, data) => {
-        let shelfId = shelfArray.shelfLocation;
-        let domBoxArray = $('.shelf' + shelfId + '> .shelf-slot');
-        for(let i = 0; i < shelfArray.boxes.length; i++) {
-            $(domBoxArray[i]).append('<p><strong>Name: </strong>' + shelfArray.boxes[i].boxName + '</p>'
-                + '<p style="display:inline-block;"><strong>ID:</strong> ' + shelfArray.boxes[i]._id + '</p>'
-                + '<br>'
-
-                + '<p style="display:inline-block; margin-right: 1%;"><strong>Maximum temperature:</strong> ' + shelfArray.boxes[i].prefTemp.max + '</p>'
-                + '<p style="display:inline-block;"><strong>Minimum temperature:</strong> ' + shelfArray.boxes[i].prefTemp.min + '</p>'
-                + '<br>'
-                + '<p style="display:inline-block;  margin-right: 1%;"><strong>Maximum light:</strong> ' + shelfArray.boxes[i].prefLight.max + '</p>'
-                + '<p style="display:inline-block;"><strong>Minimum light:</strong> ' + shelfArray.boxes[i].prefLight.min + '</p>'
-                + '<br>'
-            );
-
-            if(shelfArray.boxes[i].pendingStorage) {
-                $(domBoxArray[i]).append (
-                    '<p class="pendingStorage" style="display:inline-block; color: red;"><strong>Box being placed by robot...</strong></p>'
-                )
-            } else {
-                $(domBoxArray[i]).append (
-                    '<p class="pendingStorage" style="display:inline-block; color: green;"><strong>Box in shelf!</strong></p>'
-                );
-                $(domBoxArray[i]).append("<button type='button' id='" + shelfArray.boxes[i]._id + "' class='btn btn-danger pull-right'>Retrive box</button>").on('click', (event)=> {
-                    pendingRemove(event);
-                });
-            }
-
-
-            $(domBoxArray[i]).prop('id', shelfArray.boxes[i]._id);
-        }
-
-        for(let j = shelfArray.boxes.length; j < 3 ; j++) {
-            $(domBoxArray[j]).append('<p><strong>EMPTY</strong></p>');
-        }
-
-
-        paintGraph(shelfId, data);
-    });
-
 
     function changePendingStorage(boxId) {
         $('#' + boxId).find('.pendingStorage').fadeOut(500).html('<strong>Box in shelf!</strong>').css('color', 'green').parent()
@@ -88,6 +46,18 @@ $(document).ready(function() {
                 showMove(id);
         }
 
+    });
+
+    clientSocket.on('temp_outside_range', (minOrMax, box)=> {
+
+        if(minOrMax == 'max') {
+            let temperatureP1 = $('#' + box._id +' > p')[2];
+            $(temperatureP1).css('color', 'red');
+
+        } else {
+            let temperatureP2 = $('#' + box._id +' > p')[3];
+            $(temperatureP2).css('color', 'red');
+        }
     });
 
     clientSocket.on('new_sensor_value', function(deviceData, deviceId) {
@@ -144,12 +114,12 @@ $(document).ready(function() {
             createdBy: 'john',
             boxName: values.boxname,
             prefTemp: {
-                min: values.minTemp,
-                max: values.maxTemp
+                min: parseInt(values.minTemp),
+                max: parseInt(values.maxTemp)
             },
             prefLight: {
-                min: values.minLight,
-                max: values.maxLight
+                min: parseInt(values.minLight),
+                max: parseInt(values.maxLight)
             },
             pendingStorage: true		// True when processed by the robot. When the robot is done, it is set to false
         }
@@ -167,13 +137,23 @@ $(document).ready(function() {
 
 
     clientSocket.on('add_box_status', function(shelf, box) {
-
+        debugger;
         let domBoxArray = $('.shelf' + shelf.shelfLocation + '> .shelf-slot');
+        let shelfBoxesLength = 0;
+        for(let i = 0; i < shelf.boxes.length; i++) {
+            if(shelf.boxes[i] === '') {
+                shelfBoxesLength = i;
+                i = shelf.boxes.length;
+            }
+        }
 
-        $(domBoxArray[shelf.boxes.length]).prop('id', box._id);
+
+        $(domBoxArray[shelfBoxesLength]).prop('id', box._id);
+
+
 
         $('#' + box._id + '> p').remove();
-        $(domBoxArray[shelf.boxes.length]).append('<p><strong>Name: </strong>' + box.boxName + '</p>'
+        $(domBoxArray[shelfBoxesLength]).append('<p><strong>Name: </strong>' + box.boxName + '</p>'
             + '<p style="display:inline-block;"><strong>ID:</strong> ' + box._id + '</p>'
             + '<br>'
             + '<p style="display:inline-block; margin-right: 1%;"><strong>Maximum temperature:</strong> ' + box.prefTemp.max + '</p>'
@@ -184,9 +164,10 @@ $(document).ready(function() {
             + '<br>'
             + '<p class="pendingStorage" style="display:inline-block; color: red;"><strong>Box being placed by robot...</strong></p>'
         );
+    });
 
 
-        function paintGraph(target,data) {
+    function paintGraph(target,data) {
 
         var data = data[0];
 
@@ -344,7 +325,6 @@ $(document).ready(function() {
 
 
 
-    });
 
     //Check to see if the window is top if not then display button
     $(window).scroll(function(){
@@ -359,6 +339,47 @@ $(document).ready(function() {
     $('.scrollToTop').click(function(){
         $('html, body').animate({scrollTop : 0},800);
         return false;
+    });
+
+    clientSocket.emit('get_all_shelves');
+
+    clientSocket.on('response_get_all_shelves', (shelfArray, data) => {
+        console.log(shelfArray);
+        let shelfId = shelfArray.shelfLocation;
+        let domBoxArray = $('.shelf' + shelfId + '> .shelf-slot');
+
+        for (let i = 0; i < shelfArray.shelfCapacity; i++) {
+            if(shelfArray.boxes[i] !== '') {
+                $(domBoxArray[i]).append('<p><strong>Name: </strong>' + shelfArray.boxes[i].boxName + '</p>'
+                    + '<p style="display:inline-block;"><strong>ID:</strong> ' + shelfArray.boxes[i]._id + '</p>'
+                    + '<br>'
+
+                    + '<p style="display:inline-block; margin-right: 1%;"><strong>Maximum temperature:</strong> ' + shelfArray.boxes[i].prefTemp.max + '</p>'
+                    + '<p style="display:inline-block;"><strong>Minimum temperature:</strong> ' + shelfArray.boxes[i].prefTemp.min + '</p>'
+                    + '<br>'
+                    + '<p style="display:inline-block;  margin-right: 1%;"><strong>Maximum light:</strong> ' + shelfArray.boxes[i].prefLight.max + '</p>'
+                    + '<p style="display:inline-block;"><strong>Minimum light:</strong> ' + shelfArray.boxes[i].prefLight.min + '</p>'
+                    + '<br>'
+                );
+
+                if(shelfArray.boxes[i].pendingStorage) {
+                    $(domBoxArray[i]).append (
+                        '<p class="pendingStorage" style="display:inline-block; color: red;"><strong>Box being placed by robot...</strong></p>'
+                    )
+                } else {
+                    $(domBoxArray[i]).append (
+                        '<p class="pendingStorage" style="display:inline-block; color: green;"><strong>Box in shelf!</strong></p>'
+                    );
+                    $(domBoxArray[i]).append("<button type='button' id='" + shelfArray.boxes[i]._id + "' class='btn btn-danger pull-right'>Retrive box</button>").on('click', (event)=> {
+                        pendingRemove(event);
+                    });
+                }
+            } else {
+                $(domBoxArray[i]).append('<p><strong>EMPTY</strong></p>');
+            }
+            $(domBoxArray[i]).prop('id', shelfArray.boxes[i]._id);
+        }
+        paintGraph(shelfId, data);
     });
 
 

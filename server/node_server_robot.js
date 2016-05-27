@@ -6,7 +6,7 @@ const zerorpc = require('zerorpc');
 import {sendCommandServer} from "./send_command_server-compiled";
 
 var client = new zerorpc.Client({timeout:120, heartbeatInterval:500000000});
-client.connect("tcp://127.0.0.1:4242");
+client.connect("tcp://192.168.43.138:4242");
 
 let commandBuffer = [];
 
@@ -17,7 +17,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.post('/command', function (req, res) {
-
 
     if(commandBuffer.length == 0) {
         console.log(req.body);

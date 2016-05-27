@@ -16,7 +16,7 @@ function removeBox(boxId, callback) {
     findShelf(boxId, function (shelf) {
         let theShelf = shelf;
         removeBoxFromDb(theShelf, boxId);
-        sendCommandServer(false,'remove',boxId, theShelf.shelfLocation, theShelf.yPos);
+        sendCommandServer(false,'remove',boxId, theShelf.shelfLocation, theShelf.yPos+1);
         callback(boxId, true);
     });
 
@@ -56,15 +56,22 @@ function removeBox(boxId, callback) {
         console.log(shelf);
         console.log(boxId);
 
-        let box_id = new ObjectID(boxId);
 
+        let box_id = new ObjectID(boxId);
+/*
         let update = { "$pull": { boxes: { _id: box_id } } };
         
         let query = {shelfLocation: shelf.shelfLocation};
         mongoClient.shelfCollection.update(query, update);
+*/
+
+        mongoClient.shelfCollection.update({"shelfLocation": shelf.shelfLocation, "boxes._id": box_id}, { $set: { "boxes.$": '' } });
+
     }
 }
 
 export {removeBox};
 
 // db.shelves.update({}, {"$pull": { "boxes": { "_id": ObjectId("574576137a7af22b7d9ae902")}}});
+
+//mongoClient.shelfCollection.update({"_id": 1, "boxes": ObjectId("574576137a7af22b7d9ae902")}, { $set: { "boxes.$": '' } });

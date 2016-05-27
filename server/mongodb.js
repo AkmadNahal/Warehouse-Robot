@@ -7,17 +7,17 @@ function mongoDbSetup() {
     var shelf = {
         shelfLocation: 1,
         shelfCapacity: 3,
-        boxes: []		// An array of the boxObjects stored on the shelf, indexed by physical coordinate location
+        boxes: ['','','']		// An array of the boxObjects stored on the shelf, indexed by physical coordinate location
     }
     var shelf1 = {
         shelfLocation: 2,
         shelfCapacity: 3,
-        boxes: []		// An array of the boxObjects stored on the shelf, indexed by physical coordinate location
+        boxes: ['','','']		// An array of the boxObjects stored on the shelf, indexed by physical coordinate location
     }
     var shelf2 = {
         shelfLocation: 3,
         shelfCapacity: 3,
-        boxes: []		// An array of the boxObjects stored on the shelf, indexed by physical coordinate location
+        boxes: ['','','']// An array of the boxObjects stored on the shelf, indexed by physical coordinate location
     }
 
     mongoClient.connect(mongoUrl, function(err, db) {

@@ -15,6 +15,11 @@ function sendSensorUpdateClient(string, deviceData, deviceId) {
     clientConSock.broadcast.emit(string, deviceData, deviceId);
 }
 
+function sendClientTempOutsideRange(minOrMax,box) {
+    clientConSock.emit('temp_outside_range', minOrMax, box);
+    clientConSock.broadcast.emit('temp_outside_range', minOrMax, box);
+}
+
 function sendRobotUpdateClient(command, id) {
     clientConSock.emit('robot_status_update', command, id);
     clientConSock.broadcast.emit('robot_status_update', command, id);
@@ -31,7 +36,7 @@ function socketSetup() {
         console.log("A client connected");
 
         clientConSock.on('add_box', (box) => {
-            tryInsertBox(box, (result, theBox) => {
+            tryInsertBox(box,false, (result, theBox) => {
                 clientConSock.emit('add_box_status', result, theBox);
                 clientConSock.broadcast.emit('add_box_status', result, theBox);
             });
@@ -75,4 +80,4 @@ function socketSetup() {
     });
 }
 
-export { socketSetup, clientConSock, sendRobotUpdateClient, sendSensorUpdateClient };
+export { socketSetup, clientConSock, sendRobotUpdateClient, sendSensorUpdateClient, sendClientTempOutsideRange };

@@ -4,9 +4,17 @@ import { ObjectID } from './mongodb-compiled';
 import {sendCommandServer} from "./send_command_server-compiled";
 
 
-function tryInsertBox(box, callback) {
+function tryInsertBox(box, isRelocate, callback) {
 
-    box._id = new ObjectID;
+
+    if(!isRelocate) {
+        box._id = new ObjectID;
+    }
+
+    console.log(box);
+
+    box.tempCount = 0;
+
     // Get latest values from timestamp
     let startDeviceId = 1;
 
@@ -16,17 +24,24 @@ function tryInsertBox(box, callback) {
             findMatchingShelf(box, latestValuesArray, function (afilteredShelvs) {
                 let filteredShelvs = afilteredShelvs;
                 getShelfsMongo(function (mongoShelves) {
-                    findFreeShelf(filteredShelvs, mongoShelves, function (result) {
-                        if (result === false) {
-                            console.log('failed to find a shelf');
-                            callback('Failed to find a shelf');
+                    findFreeShelf(filteredShelvs, mongoShelves, function (result, position) {
+                        if(isRelocate) {
+                            callback(result, box, position+1);
                         } else {
-                            console.log('Inserting box into database...');
-                            mongoClient.shelfCollection.update({"_id": result._id}, { $push: { "boxes": box } });
-                            var x_coordinate = result.shelfLocation;
-                            var y_coordinate = result.boxes.length+1;
-                            sendCommandServer(false,'insert', box._id, x_coordinate, y_coordinate);
-                            callback(result, box);
+                            if (result === false) {
+                                console.log('failed to find a shelf');
+                                callback('Failed to find a shelf');
+                            } else {
+                                console.log('Inserting box into database...');
+
+                                mongoClient.shelfCollection.update({"_id": result._id, "boxes": ''}, { $set: { "boxes.$": box } });
+//                            mongoClient.shelfCollection.update({"_id": result._id}, { $push: { "boxes": box } });
+
+                                var x_coordinate = result.shelfLocation;
+                                var y_coordinate = position+1;
+                                sendCommandServer(false,'insert', box._id, x_coordinate, y_coordinate);
+                                callback(result, box);
+                            }
                         }
                     })
                 })
@@ -63,19 +78,7 @@ function tryInsertBox(box, callback) {
     function findMatchingShelf(box, influxLatestValues, callback) {
         let filtredShelves = [];
 
-/*
-        for (let j = 0; j < influxLatestValues.length; j++) {
-            if (box.prefTemp.max > influxLatestValues[j].temperature_celsius &&
-                box.prefTemp.min < influxLatestValues[j].temperature_celsius &&
-                box.prefLight.max > influxLatestValues[j].light_lux &&
-                box.prefLight.min < influxLatestValues[j].light_lux
-            ) {
-                filtredShelves.push(influxLatestValues[j]);
-            }
-        }
-       */
-
-            var filtered = influxLatestValues.filter((sensorValue) =>
+        var filtered = influxLatestValues.filter((sensorValue) =>
             box.prefTemp.max > sensorValue.temperature_celsius && box.prefTemp.min < sensorValue.temperature_celsius &&
             box.prefLight.max > sensorValue.light_lux &&
             box.prefLight.min < sensorValue.light_lux
@@ -104,41 +107,43 @@ function tryInsertBox(box, callback) {
     function findFreeShelf(filteredShelfsArray, mongoShelfArray, callback) {
         let foundShelf = false;
         let theShelf = [];
+        let mongoShelfArrayLength = [0,0,0];
+        let position = 0;
 
-
-/*
-
-        for(let sensorValue of filteredShelfsArray) {
-            mongoShelfArray = mongoShelfArray.filter((shelf) =>
-            shelf.shelfLocation == sensorValue.Device_Id &&
-            shelf.boxes.length < shelf.shelfCapacity
-            )
+        for (let i = 0; i < mongoShelfArray.length; i++) {
+            console.log("mongoshelf array length:" + mongoShelfArray.length);
+            for (let j = 0; j < mongoShelfArray[i].shelfCapacity; j++) {
+                if(mongoShelfArray[i].boxes[j] !== '') {
+                    mongoShelfArrayLength[i] ++;
+                }
+            }
         }
 
-        if(mongoShelfArray.length > 0) {
-            callback(mongoShelfArray[0])
-        } else {
-            callback(false);
-        }
-    }
-*/
-
+        console.log(mongoShelfArrayLength);
 
         for (let i = 0; i < filteredShelfsArray.length; i++) {
             for (let j = 0; j < mongoShelfArray.length; j++) {
                 if (
                     filteredShelfsArray[i].Device_Id == mongoShelfArray[j].shelfLocation &&
-                    mongoShelfArray[j].boxes.length < mongoShelfArray[j].shelfCapacity
+                    mongoShelfArrayLength[j] < mongoShelfArray[j].shelfCapacity
                 ) {
                     foundShelf = true;
                     theShelf = mongoShelfArray[j];
+
+                    for(let k = 0; k < theShelf.shelfCapacity; k++) {
+                        if(theShelf.boxes[k] === '') {
+                            position = k;
+                            k = theShelf.shelfCapacity;
+                        }
+                    }
+
                 }
             }
         }
         if(foundShelf) {
-            callback(theShelf);
+            callback(theShelf, position);
         } else {
-            callback(false);
+            callback(false, position);
         }
     }
 }
