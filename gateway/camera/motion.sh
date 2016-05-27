@@ -39,7 +39,7 @@ setup_mode off
 
 # Videodevice to be used for capturing  (default /dev/video0)
 # for FreeBSD default is /dev/bktr0
-videodevice /dev/video0
+videodevice /dev/video1
 
 # v4l2_palette allows to choose preferable palette to be use by motion
 # to capture from those supported by your videodevice. (default: 8)
