@@ -91,3 +91,47 @@ h1 {
 .scrollToTop:hover{
     text-decoration:none;
 }
+
+.axis line,
+.axis path {
+    stroke-width: 1;
+    fill: none;
+    stroke: #333;
+    shape-rendering: crispEdges;
+}
+
+svg
+{
+    background: #FFFFFF;
+
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+
+
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+.tick text{
+    font-size: 12px;
+}
+
+.tick line{
+    opacity: 0.2;
+}
+
+.area {
+    fill: lightsteelblue;
+    fill-opacity: 0.5;
+    stroke-width: 0;
+}

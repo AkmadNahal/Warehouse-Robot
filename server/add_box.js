@@ -2,6 +2,7 @@ import { dbClient } from './influxdb-compiled';
 import { mongoClient } from './mongodb-compiled';
 import { ObjectID } from './mongodb-compiled';
 import {sendCommandServer} from "./send_command_server-compiled";
+import {removeBox} from "./remove_box-compiled";
 
 
 function tryInsertBox(box, isRelocate, callback) {
@@ -11,7 +12,7 @@ function tryInsertBox(box, isRelocate, callback) {
         box._id = new ObjectID;
     }
 
-    console.log(box);
+    //console.log(box);
 
     box.tempCount = 0;
 
@@ -20,18 +21,39 @@ function tryInsertBox(box, isRelocate, callback) {
 
     getNrOfArduinos(function (aNrOfArduinos) {
         let nrOfArduinos = aNrOfArduinos;
+        //console.log('1')
+        //console.log(nrOfArduinos);
+
         getLatestValues(nrOfArduinos, startDeviceId, function (latestValuesArray) {
+            //console.log('2')
+            //console.log(latestValuesArray);
+
             findMatchingShelf(box, latestValuesArray, function (afilteredShelvs) {
+                //console.log('3')
+                //console.log(afilteredShelvs);
+
                 let filteredShelvs = afilteredShelvs;
                 getShelfsMongo(function (mongoShelves) {
+                    //console.log('4')
+                    //console.log(mongoShelves);
                     findFreeShelf(filteredShelvs, mongoShelves, function (result, position) {
-                        if(isRelocate) {
-                            callback(result, box, position+1);
+                        //console.log('5')
+                        //console.log(result);
+                        if (result === false) {
+                            console.log('failed to find a shelf');
+                            callback('Failed to find a shelf');
                         } else {
-                            if (result === false) {
-                                console.log('failed to find a shelf');
-                                callback('Failed to find a shelf');
+                            if(isRelocate) {
+                                console.log('sending to remove box.. relocate:' + isRelocate);
+                                console.log(box);
+                                console.log(box._id);
+                                removeBox(isRelocate, box._id, (boxId, isSuccess) => {
+                                    console.log('removed box after relocate');
+                                    mongoClient.shelfCollection.update({"_id": result._id, "boxes": ''}, { $set: { "boxes.$": box } });
+                                });
+                                callback(result, box, position+1);
                             } else {
+
                                 console.log('Inserting box into database...');
 
                                 mongoClient.shelfCollection.update({"_id": result._id, "boxes": ''}, { $set: { "boxes.$": box } });
@@ -67,7 +89,7 @@ function tryInsertBox(box, isRelocate, callback) {
             }
         }
 
-        let query = "select * from Devices  where " + deviceString + "and time > '2016-04-30' and time < '2016-05-18' Order by time DESC limit 3"
+        let query = "select * from Devices  where " + deviceString + "and time > now() - 30s Order by time DESC limit 3"
         dbClient.query(query, function (err, res) {
             influxResults = res[0];
             callback(influxResults);
@@ -93,7 +115,7 @@ function tryInsertBox(box, isRelocate, callback) {
         let cursor = mongoClient.shelfCollection.find();
         cursor.each(function (err, doc) {
             if (err) {
-                console.log(err);
+                //console.log(err);
             } else {
                 if (doc != null) {
                     shelfArray.push(doc);
@@ -111,7 +133,6 @@ function tryInsertBox(box, isRelocate, callback) {
         let position = 0;
 
         for (let i = 0; i < mongoShelfArray.length; i++) {
-            console.log("mongoshelf array length:" + mongoShelfArray.length);
             for (let j = 0; j < mongoShelfArray[i].shelfCapacity; j++) {
                 if(mongoShelfArray[i].boxes[j] !== '') {
                     mongoShelfArrayLength[i] ++;
@@ -119,7 +140,6 @@ function tryInsertBox(box, isRelocate, callback) {
             }
         }
 
-        console.log(mongoShelfArrayLength);
 
         for (let i = 0; i < filteredShelfsArray.length; i++) {
             for (let j = 0; j < mongoShelfArray.length; j++) {
@@ -200,7 +220,7 @@ export { tryInsertBox };
  dbClient.query(query, function(err, res) {
  influxResults.push(res[0][0]);
  if (influxResults.length === nrOfArduinos) {
- console.log(influxResults);
+ //console.log(influxResults);
 
  for(let j = 0; j < influxResults.length; j++) {
  if( box.prefTemp.max > influxResults[j].temperature_celsius &&
@@ -208,29 +228,29 @@ export { tryInsertBox };
  box.prefLight.max > influxResults[j].light_lux &&
  box.prefLight.min < influxResults[j].light_lux
  ) {
- console.log('Shelf ' + influxResults[j].Device_Id + ' is within range');
+ //console.log('Shelf ' + influxResults[j].Device_Id + ' is within range');
 
  mongoClient.shelfCollection.findOne({"shelfLocation": parseInt(influxResults[j].Device_Id) }, function(err, res2) {
- console.log(res2);
+ //console.log(res2);
  if(res2.shelfCapacity > res2.boxes.length) {
- console.log('there is space!');
+ //console.log('there is space!');
  mongoClient.shelfCollection.update({"_id": res2._id}, { $push: { "boxes": box } });
  insertFailed = false;
  j = influxResults.length;
  finalShelf = res2;
  } else {
- console.log('Found a good shelf, but shelf + ' + res2.shelfLocation + ' has no space!');
+ //console.log('Found a good shelf, but shelf + ' + res2.shelfLocation + ' has no space!');
  }
  });
  }
  if(j === influxResults.length || j === influxResults.length-1) {
  if(insertFailed) {
  //                              clientConSock.emit('insert_failed');
- console.log('failed');
+ //console.log('failed');
  callback(insert_failed';                 // callback(ar alltid failed. Beror formodligen pa att den inte vantar pa att
  } else {
  //                                clientConSock.emit('insert_succeeded', finalShelf);
- console.log('succeeded');
+ //console.log('succeeded');
  callback(insert_succeeded';              // ...
  }
  }

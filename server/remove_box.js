@@ -2,7 +2,7 @@ import { mongoClient } from './mongodb-compiled';
 import {ObjectID} from "./mongodb-compiled";
 import {sendCommandServer} from "./send_command_server-compiled";
 
-function removeBox(boxId, callback) {
+function removeBox(oldShelfLocation, boxId, callback) {
 
     console.log('called removebox');
 
@@ -16,7 +16,9 @@ function removeBox(boxId, callback) {
     findShelf(boxId, function (shelf) {
         let theShelf = shelf;
         removeBoxFromDb(theShelf, boxId);
-        sendCommandServer(false,'remove',boxId, theShelf.shelfLocation, theShelf.yPos+1);
+        if(!oldShelfLocation) {
+            sendCommandServer(false,'remove',boxId, theShelf.shelfLocation, theShelf.yPos+1);
+        }
         callback(boxId, true);
     });
 
@@ -33,16 +35,20 @@ function removeBox(boxId, callback) {
                 }
             }
         };
-        
+
         //    let query =  '{ "boxes": { "$elemMatch": { "_id": "ObjectId("' + boxId + '")" } } }';
 
         mongoClient.shelfCollection.findOne(query, (err, res) => {
                 console.log('got back from shelf query');
+
                 for(let i = 0; i < res.boxes.length; i++) {
-                    console.log(res.boxes[i]);
-                    console.log(box_id);
-                    if(res.boxes[i]._id == boxId) {
+                    console.log(res.boxes[i]._id);
+                    console.log(boxId);
+                    console.log(res.boxes[i]._id == boxId);
+                    if( String(res.boxes[i]._id) === String(boxId)) {
                         console.log('found a match for boxes id')
+                        console.log(res.boxes[i]._id);
+                        console.log(boxId);
                         res.yPos = i;
                         callback(res);
                     }
@@ -58,13 +64,12 @@ function removeBox(boxId, callback) {
 
 
         let box_id = new ObjectID(boxId);
-/*
-        let update = { "$pull": { boxes: { _id: box_id } } };
-        
-        let query = {shelfLocation: shelf.shelfLocation};
-        mongoClient.shelfCollection.update(query, update);
-*/
+        /*
+         let update = { "$pull": { boxes: { _id: box_id } } };
 
+         let query = {shelfLocation: shelf.shelfLocation};
+         mongoClient.shelfCollection.update(query, update);
+         */
         mongoClient.shelfCollection.update({"shelfLocation": shelf.shelfLocation, "boxes._id": box_id}, { $set: { "boxes.$": '' } });
 
     }

@@ -1,5 +1,15 @@
 import { Client } from '../app-compiled';
 
+let temp = 15;
+
+function incTemp() {
+    temp++
+}
+
+function decTemp() {
+    temp--;
+}
+
 function iotDeviceSetup(){
 
     const config = {
@@ -26,8 +36,6 @@ function iotDeviceSetup(){
         "auth-token" : "-3Icm8HvvUR+Wn+jXD"
     };
 
-
-
     let deviceClient = new Client.IotfDevice(config);
     let deviceClient_2 = new Client.IotfDevice(config_2);
     let deviceClient_3 = new Client.IotfDevice(config_3);
@@ -38,17 +46,15 @@ function iotDeviceSetup(){
 
 
     function publisher() {
-        deviceClient.publish("event","json",'{"data" : { "temperature_celsius" : 0, "light_lux" : 300 }}');
-        deviceClient_2.publish("event","json",'{"data" : { "temperature_celsius" : 10, "light_lux" : 100 }}');
-        deviceClient_3.publish("event","json",'{"data" : { "temperature_celsius" : 20, "light_lux" : 600 }}');
+        deviceClient.publish("event","json",'{"data" : { "temperature_celsius" : -10, "light_lux" : 300 }}');
+        deviceClient_2.publish("event","json",'{"data" : { "temperature_celsius" : '+ temp +', "light_lux" : 100 }}');
+        deviceClient_3.publish("event","json",'{"data" : { "temperature_celsius" : 25, "light_lux" : 600 }}');
     }
 
     deviceClient_3.on('connect', function () {
         console.log('succesfully connected to IBM Watson!');
         setInterval(publisher, 5000);
     });
-
-
 
 
     deviceClient.on('command', function(commandName, format, payload, topic) {
@@ -64,4 +70,4 @@ function iotDeviceSetup(){
         console.log("Error : "+err);
     });
 }
-export { iotDeviceSetup };
+export { iotDeviceSetup, incTemp, decTemp };

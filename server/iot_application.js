@@ -24,20 +24,26 @@ const iotAppSetup = function() {
 
     appClient.on('deviceEvent', function(deviceType, deviceId, eventType, format, payload) {
 
-        //
-        // console.log("Device Event from :: " + deviceType + " : " + deviceId + " of event " + eventType + " with payload : " + payload);
-        let deviceData = (JSON.parse(payload.toString())).data;
+        
+        if(parseInt(deviceId) == 4) {
+            console.log('tuan!!!');
+        } else {
+            //
+            //console.log("Device Event from :: " + deviceType + " : " + deviceId + " of event " + eventType + " with payload : " + payload);
+            let deviceData = (JSON.parse(payload.toString())).data;
 
-        dbClient.writePoint('Devices', {
-            temperature_celsius: deviceData.temperature_celsius,
-            light_lux: deviceData.light_lux
-        }, {Device_Id: deviceId}, function (err, response) {
-        });
+            dbClient.writePoint('Devices', {
+                temperature_celsius: deviceData.temperature_celsius,
+                light_lux: deviceData.light_lux
+            }, {Device_Id: deviceId}, function (err, response) {
+            });
 
-        sendSensorUpdateClient('new_sensor_value', deviceData, deviceId);
-        compareTempToBoxes(deviceData, deviceId);
+            sendSensorUpdateClient('new_sensor_value', deviceData, deviceId);
+            compareTempToBoxes(deviceData, deviceId);
+
+        }
     });
-    
+
 // Error handling application
 
     appClient.on('error', function (err) {

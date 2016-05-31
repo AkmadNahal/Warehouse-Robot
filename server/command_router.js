@@ -25,7 +25,13 @@ function commandRouter(commandObject) {
             break;
         case 'move':
             console.log('robot has moved!');
-            break
+            break;
+        case 'relocate':
+            console.log(commandObject.id);
+            changePendingStorage(commandObject.id);
+            console.log('robot had relocated box!');
+            break;
+
         default:
             console.log('swtich reached default, must be some error...');
     }

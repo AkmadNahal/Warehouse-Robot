@@ -5,14 +5,17 @@ import { tryInsertBox } from './add_box-compiled';
 import { getAllBoxes } from './get_all_boxes-compiled.js';
 import { removeBox } from './remove_box-compiled';
 import {sendCommandServer} from "./send_command_server-compiled";
+import {incTemp, decTemp} from "./iot_devices-compiled";
 
 
-var clientConSock;
+var clientConSock = null;
 var serverSocket;
 
 function sendSensorUpdateClient(string, deviceData, deviceId) {
-    clientConSock.emit(string, deviceData, deviceId);
-    clientConSock.broadcast.emit(string, deviceData, deviceId);
+    if(clientConSock) {
+        clientConSock.emit(string, deviceData, deviceId);
+        clientConSock.broadcast.emit(string, deviceData, deviceId);
+    }
 }
 
 function sendClientTempOutsideRange(minOrMax,box) {
@@ -21,8 +24,10 @@ function sendClientTempOutsideRange(minOrMax,box) {
 }
 
 function sendRobotUpdateClient(command, id) {
-    clientConSock.emit('robot_status_update', command, id);
-    clientConSock.broadcast.emit('robot_status_update', command, id);
+    if(clientConSock){
+        clientConSock.emit('robot_status_update', command, id);
+        clientConSock.broadcast.emit('robot_status_update', command, id);
+    }
 }
 
 function socketSetup() {
@@ -44,7 +49,7 @@ function socketSetup() {
 
         clientConSock.on('remove_box', (boxId) => {
             console.log(boxId);
-            removeBox(boxId, function (box, status) {
+            removeBox(false, boxId, function (box, status) {
                 clientConSock.emit('remove_box_status', box, status);
                 clientConSock.broadcast.emit('remove_box_status', box, status);
             });
@@ -64,6 +69,16 @@ function socketSetup() {
             console.log(id);
             sendCommandServer(false, 'move', id, coordinates.x, coordinates.y);
         });
+
+        clientConSock.on('inc_temp', () => {
+            incTemp();
+        });
+
+        clientConSock.on('dec_temp', () => {
+            decTemp();
+        });
+
+
 
 
         /*

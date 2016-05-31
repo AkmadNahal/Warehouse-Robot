@@ -22,7 +22,7 @@ function getInfluxData(device, callback) {
 
     var query = "select * " +
         "from Devices " +
-        "where time > '2016-05-15' and Device_Id = '" + device + "'" +'limit 10';
+        "where time > now() - 6m and Device_Id = '" + device + "'" +'order by time desc';
     dbClient.query(query, (err, results) => {
         callback(results);
         //    writeAfile(JSON.stringify(results));

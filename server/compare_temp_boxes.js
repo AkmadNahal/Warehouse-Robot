@@ -6,7 +6,6 @@ import {addCountBox} from "./self_org-compiled";
 
 function compareTempToBoxes(deviceData, deviceId) {
 
-    console.log('compare!');
     // query mongo db, look inside the current shelf (deviceId) and if inside max, min.
 
     /*    let cursor = mongoClient.shelfCollection.find({"shelfLocation": parseInt(deviceId), "boxes": {
@@ -32,11 +31,11 @@ function compareTempToBoxes(deviceData, deviceId) {
                         if( doc.boxes[i].prefTemp.max < deviceData.temperature_celsius) {
                             sendClientTempOutsideRange('max', doc.boxes[i]);
                             addCountBox(doc.boxes[i]._id);
-                            checkCountShelf(deviceId, doc.boxes[i]);
+                            checkCountShelf(doc.boxes[i]._id,deviceId);
                         } else if (doc.boxes[i].prefTemp.min > deviceData.temperature_celsius) {
                             sendClientTempOutsideRange('min', doc.boxes[i]);
                             addCountBox(doc.boxes[i]._id);
-                            checkCountShelf(deviceId, doc.boxes[i]);
+                            checkCountShelf(doc.boxes[i]._id, deviceId);
                         } else {
                             clearCountBox(doc.boxes[i]._id);
                         }
