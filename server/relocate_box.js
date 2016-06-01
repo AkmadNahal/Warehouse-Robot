@@ -7,6 +7,8 @@ import {sendRobotUpdateClient} from "./websocket-compiled";
 
 function relocateBox(box, shelfLocation, locationInShelf) {
     console.log('relocate called!');
+    console.log('The relocate caller: ')
+    console.log(box);
 
     tryInsertBox(box, shelfLocation, (newShelf, NewBox, y_coordinate) => {
 

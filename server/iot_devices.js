@@ -1,13 +1,43 @@
 import { Client } from '../app-compiled';
 
-let temp = 15;
+let temp1 = 0;
+let temp2 = 10;
+let temp3 = 20;
 
-function incTemp() {
-    temp++
+
+function incTemp(shelfNr) {
+    switch (shelfNr) {
+
+        case '1':
+            temp1++;
+            break;
+
+        case '2':
+            temp2++;
+            break;
+
+        case '3':
+            temp3++;
+            break;
+    }
 }
 
-function decTemp() {
-    temp--;
+
+function decTemp(shelfNr) {
+    switch (shelfNr) {
+
+        case '1':
+            temp1--;
+            break;
+
+        case '2':
+            temp2--;
+            break;
+
+        case '3':
+            temp3--;
+            break;
+    }
 }
 
 function iotDeviceSetup(){
@@ -46,9 +76,9 @@ function iotDeviceSetup(){
 
 
     function publisher() {
-        deviceClient.publish("event","json",'{"data" : { "temperature_celsius" : -10, "light_lux" : 300 }}');
-        deviceClient_2.publish("event","json",'{"data" : { "temperature_celsius" : '+ temp +', "light_lux" : 100 }}');
-        deviceClient_3.publish("event","json",'{"data" : { "temperature_celsius" : 25, "light_lux" : 600 }}');
+        deviceClient.publish("event","json",'{"data" : { "temperature_celsius" : '+ temp1 +', "light_lux" : 300 }}');
+        deviceClient_2.publish("event","json",'{"data" : { "temperature_celsius" : '+ temp2 +', "light_lux" : 100 }}');
+        deviceClient_3.publish("event","json",'{"data" : { "temperature_celsius" : '+ temp3 +', "light_lux" : 600 }}');
     }
 
     deviceClient_3.on('connect', function () {

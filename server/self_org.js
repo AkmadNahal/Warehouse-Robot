@@ -24,11 +24,12 @@ function checkCountShelf(boxId, shelfLocation) {
     mongoClient.shelfCollection.findOne(query, (err, res) => {
         for(let i = 0; i < res.boxes.length; i++) {
             if(res.boxes[i] !== '') {
-                if(parseInt(res.boxes[i]._id) === parseInt(boxId)) {
-
-                    console.log('checking if boxcount is above 10..');
+                console.log(res.boxes[i]._id);
+                console.log(boxId);
+                if(String(res.boxes[i]._id) == String(boxId)) {
+                    console.log('checking if boxcount is above 2..');
                     if(res.boxes[i].tempCount > 2) {
-                        console.log('Box count over 10! ' + res.boxes[i].tempCount);
+                        console.log('Box count over 2! ' + res.boxes[i].tempCount);
                         relocateBox(res.boxes[i], shelfLocation, i+1);
                     }
                 }

@@ -22,12 +22,14 @@ function getInfluxData(device, callback) {
 
     var query = "select * " +
         "from Devices " +
-        "where time > now() - 6m and Device_Id = '" + device + "'" +'order by time desc';
+        "where time > now() - 1m and Device_Id = '" + device + "'" +'order by time desc';
     dbClient.query(query, (err, results) => {
         callback(results);
         //    writeAfile(JSON.stringify(results));
     });
  }
+
+////sdaf asdfsdaf
 
 export {getAllBoxes}
 

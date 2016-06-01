@@ -70,12 +70,12 @@ function socketSetup() {
             sendCommandServer(false, 'move', id, coordinates.x, coordinates.y);
         });
 
-        clientConSock.on('inc_temp', () => {
-            incTemp();
+        clientConSock.on('inc_temp', (shelfNr) => {
+            incTemp(shelfNr);
         });
 
-        clientConSock.on('dec_temp', () => {
-            decTemp();
+        clientConSock.on('dec_temp', (shelfNr) => {
+            decTemp(shelfNr);
         });
 
 

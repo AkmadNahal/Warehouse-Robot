@@ -101,6 +101,8 @@
 <div class="row">
 	<div class="col-sm-4 shelf1">
 		<h3 style="text-align: center;"> Shelf 1 </h3>
+		<button class="inc">+</button>
+		<button class="dec">-</button>
 		<h5 id="temp_shelf_1" style="text-align: center;">15 °C</h5>
 		<h6 style="text-align: center;">(last updated: Wed May 25 2016 09:49:28 GMT+0200 (CEST)) </h6>
 		<hr>
@@ -119,8 +121,8 @@
 	</div>
 	<div class="col-sm-4 shelf2">
 		<h3 style="text-align: center;"> Shelf 2 </h3>
-		<button id="inc">+</button>
-		<button id="dec">-</button>
+		<button class="inc">+</button>
+		<button class="dec">-</button>
 		<h5 id="temp_shelf_2" style="text-align: center;">25 °C</h5>
 		<h6 style="text-align: center;">(last updated: Wed May 25 2016 09:49:28 GMT+0200 (CEST)) </h6>
 		<hr>
@@ -139,6 +141,8 @@
 	</div>
 	<div class="col-sm-4 shelf3">
 		<h3 style="text-align: center;"> Shelf 3 </h3>
+		<button class="inc">+</button>
+		<button class="dec">-</button>
 		<h5 id="temp_shelf_3" style="text-align: center;">5 °C</h5>
 		<h6 style="text-align: center;">(last updated: Wed May 25 2016 09:49:28 GMT+0200 (CEST)) </h6>
 		<hr>
@@ -166,7 +170,7 @@
 <hr>
 <div class="container" id="remote">
 	<h1><u> Remote Control </u></h1>
-	<img style="-webkit-user-select: none" class="img-rounded center-block" alt="stream" width="80%" height="auto" src="http://192.168.43.207:1234/">
+	<img style="-webkit-user-select: none" class="img-rounded center-block" alt="stream" width="80%" height="auto" src="http://192.168.0.100:8081/">
 	<form class="form-inline move_command" role="form">
 		<p>Control the robot by giving it cordinates<p>
 		<div class="container">
