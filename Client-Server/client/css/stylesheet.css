@@ -1,0 +1,138 @@
+* {
+    margin: 0 auto 0 auto;
+
+}
+
+body {
+    font-family: "Open Sans", sans-serif;
+    /*background: url(../images/home.jpg) no-repeat center center fixed;*/
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    overflow-x: hidden;
+}
+
+
+#add {
+    text-align: center;
+}
+
+#icons {
+    display: inline-block;
+   position: absolute; 
+  margin-left: 300px;
+  margin-top: 175px;
+
+}
+#roboti img {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    bottom: 50%;
+    right: 50%;
+    margin: -100px 0 0 -150px;
+}
+
+#successmesg img {
+    position: absolute;
+    margin-left: 425px;
+}
+
+#successinfo {
+    position: absolute;
+    margin-left: 500px;
+   margin-top:175px;
+}
+
+#vab img {
+    margin-left: 500px;
+    margin-top: 450px;
+    position: absolute;
+}
+
+h1 {
+    text-align: center;
+}
+
+#info {
+    text-align: center;
+    margin:20px;    
+}
+
+#rev {
+    float:right;
+    margin: 20px;
+    
+}
+
+.showPopup {
+    display: block;
+}
+
+.hidePopup {
+    display:none;
+}
+
+.scrollToTop{
+    width:100px;
+    height:130px;
+    padding:10px;
+    text-align:center;
+    background: whiteSmoke;
+    font-weight: bold;
+    color: #444;
+    text-decoration: none;
+    position:fixed;
+    top: 85%;
+    right:1%;
+    display:none;
+    background: url('../images/scroll-to-top.png') no-repeat 0px 20px;
+}
+.scrollToTop:hover{
+    text-decoration:none;
+}
+
+.axis line,
+.axis path {
+    stroke-width: 1;
+    fill: none;
+    stroke: #333;
+    shape-rendering: crispEdges;
+}
+
+svg
+{
+    background: #FFFFFF;
+
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+
+
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+.tick text{
+    font-size: 12px;
+}
+
+.tick line{
+    opacity: 0.2;
+}
+
+.area {
+    fill: lightsteelblue;
+    fill-opacity: 0.5;
+    stroke-width: 0;
+}
